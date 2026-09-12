@@ -9,8 +9,11 @@ export function Spinner({ size = 20, className = '' }) {
 
 export function PageLoader() {
   return (
-    <div className="flex items-center justify-center h-[70vh]">
-      <Spinner size={26} />
+    <div className="flex flex-col items-center justify-center h-screen gap-4 bg-canvas absolute inset-0 z-50">
+      <Spinner size={36} />
+      <div className="text-lg font-bold tracking-widest text-brand-500/80 animate-pulse">
+        AMEROIDS
+      </div>
     </div>
   );
 }

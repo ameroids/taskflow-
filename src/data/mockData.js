@@ -6,7 +6,7 @@ import { addDaysISO, todayISO } from '../utils/dateUtils';
 export const seedUsers = [
   {
     id: 'u-admin',
-    name: 'Maya Chen',
+    name: 'SMS Admin',
     username: 'admin',
     password: 'admin123',
     role: 'admin',
