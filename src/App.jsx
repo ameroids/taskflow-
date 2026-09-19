@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { ToastProvider } from './context/ToastContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { PageLoader } from './components/ui/Loading';
 
@@ -41,51 +42,53 @@ function LoginRoute() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
           <DataProvider>
-            <Routes>
-              <Route path="/" element={<RootRedirect />} />
-              <Route path="/login" element={<LoginRoute />} />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<RootRedirect />} />
+                <Route path="/login" element={<LoginRoute />} />
 
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute role="admin">
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="tasks" element={<AdminTasks />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="users/:id" element={<AdminUserDetail />} />
-                <Route path="team-progress" element={<TeamProgress />} />
-                <Route path="history" element={<AdminTaskHistory />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute role="admin">
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="tasks" element={<AdminTasks />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="users/:id" element={<AdminUserDetail />} />
+                  <Route path="team-progress" element={<TeamProgress />} />
+                  <Route path="history" element={<AdminTaskHistory />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
 
-              <Route
-                path="/app"
-                element={
-                  <ProtectedRoute role="employee">
-                    <UserLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<UserDashboard />} />
-                <Route path="my-tasks" element={<MyTasks />} />
-                <Route path="my-progress" element={<MyProgress />} />
-                <Route path="history" element={<UserTaskHistory />} />
-                <Route path="settings" element={<UserSettings />} />
-              </Route>
+                <Route
+                  path="/app"
+                  element={
+                    <ProtectedRoute role="employee">
+                      <UserLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<UserDashboard />} />
+                  <Route path="my-tasks" element={<MyTasks />} />
+                  <Route path="my-progress" element={<MyProgress />} />
+                  <Route path="history" element={<UserTaskHistory />} />
+                  <Route path="settings" element={<UserSettings />} />
+                </Route>
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
           </DataProvider>
         </AuthProvider>
       </ToastProvider>
-    </BrowserRouter>
+    </ThemeProvider>
   );
 }

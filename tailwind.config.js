@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
@@ -14,16 +15,16 @@ export default {
           700: '#232B3D',
           600: '#333D54',
         },
-        surface: '#FFFFFF',
-        canvas: '#F5F6F8',
+        surface: 'var(--color-surface)',
+        canvas: 'var(--color-canvas)',
         border: {
-          DEFAULT: '#E3E5EA',
-          soft: '#ECEDF1',
+          DEFAULT: 'var(--color-border)',
+          soft: 'var(--color-border-soft)',
         },
         text: {
-          primary: '#171A21',
-          secondary: '#666D7C',
-          muted: '#8A90A0',
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          muted: 'var(--color-text-muted)',
         },
         brand: {
           50: '#EEF1FF',
@@ -42,8 +43,8 @@ export default {
         'display': ['1.75rem', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '650' }],
       },
       boxShadow: {
-        card: '0 1px 2px rgba(15,20,32,0.04), 0 1px 1px rgba(15,20,32,0.03)',
-        pop: '0 8px 24px rgba(15,20,32,0.12)',
+        card: 'var(--shadow-card)',
+        pop: 'var(--shadow-pop)',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },

@@ -40,7 +40,7 @@ export default function TeamProgress() {
             key={r.key}
             onClick={() => setRange(r.key)}
             className={`px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors ${
-              range === r.key ? 'bg-ink-950 text-white' : 'bg-white border border-border text-text-secondary hover:bg-neutral-50'
+              range === r.key ? 'bg-ink-950 text-white' : 'bg-surface border border-border text-text-secondary hover:bg-canvas'
             }`}
           >
             {r.label}

@@ -18,12 +18,12 @@ function RowMenu({ onEdit, onDelete }) {
   }, []);
   return (
     <div className="relative" ref={ref} onClick={(e) => e.stopPropagation()}>
-      <button className="p-1.5 rounded-md text-text-muted hover:bg-neutral-50 hover:text-text-primary" onClick={() => setOpen((o) => !o)}>
+      <button className="p-1.5 rounded-md text-text-muted hover:bg-canvas hover:text-text-primary" onClick={() => setOpen((o) => !o)}>
         <MoreHorizontal size={16} />
       </button>
       {open && (
         <div className="absolute right-0 mt-1 w-40 card shadow-pop py-1 z-10 animate-fadeIn">
-          <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-neutral-50 hover:text-text-primary">
+          <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-canvas hover:text-text-primary">
             <Pencil size={13} /> Edit
           </button>
           <button onClick={() => { setOpen(false); onDelete(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-danger-600 hover:bg-danger-50">
@@ -63,7 +63,7 @@ export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete
               <tr
                 key={t.id}
                 onClick={() => onRowClick(t)}
-                className="border-b border-border-soft last:border-0 hover:bg-neutral-50/70 cursor-pointer transition-colors"
+                className="border-b border-border-soft last:border-0 hover:bg-canvas/70 cursor-pointer transition-colors"
               >
                 <td className="px-4 sm:px-3 py-3 max-w-[280px]">
                   <p className="text-[13.5px] font-medium text-text-primary truncate">{t.title}</p>

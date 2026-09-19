@@ -1,6 +1,6 @@
 export default function StatCard({ label, value, icon: Icon, tone = 'default', suffix, onClick }) {
   const tones = {
-    default: 'text-text-primary bg-neutral-50',
+    default: 'text-text-primary bg-canvas',
     brand: 'text-brand-600 bg-brand-50',
     success: 'text-success-600 bg-success-50',
     warning: 'text-warning-600 bg-warning-50',

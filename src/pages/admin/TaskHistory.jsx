@@ -52,7 +52,7 @@ export default function TaskHistory() {
                   const user = getUserById(t.assignedTo);
                   const status = getDerivedStatus(t);
                   return (
-                    <tr key={t.id} onClick={() => setActiveTask(t)} className="border-b border-border-soft last:border-0 hover:bg-neutral-50/70 cursor-pointer">
+                    <tr key={t.id} onClick={() => setActiveTask(t)} className="border-b border-border-soft last:border-0 hover:bg-canvas/70 cursor-pointer">
                       <td className="px-4 py-3 max-w-[220px]">
                         <p className="text-[13.5px] font-medium text-text-primary truncate">{t.title}</p>
                       </td>

@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Menu, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Menu, LogOut, Settings, ChevronDown, Sun, Moon, Monitor } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import Avatar from '../ui/Avatar';
 
 export default function Topbar({ title, subtitle, onMenu, actions }) {
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const navigate = useNavigate();
@@ -17,7 +19,7 @@ export default function Topbar({ title, subtitle, onMenu, actions }) {
   }, []);
 
   return (
-    <header className="h-14 shrink-0 border-b border-border bg-white/90 backdrop-blur flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
+    <header className="h-14 shrink-0 border-b border-border bg-surface/90 backdrop-blur flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
       <div className="flex items-center gap-3 min-w-0">
         <button className="lg:hidden text-text-secondary hover:text-text-primary" onClick={onMenu}>
           <Menu size={19} />
@@ -30,8 +32,15 @@ export default function Topbar({ title, subtitle, onMenu, actions }) {
 
       <div className="flex items-center gap-3 shrink-0">
         {actions}
+        
+        <div className="hidden sm:flex bg-canvas rounded-lg p-0.5 border border-border">
+          <button title="Light Mode" onClick={() => setTheme('light')} className={`p-1.5 rounded-md transition-colors ${theme === 'light' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Sun size={13}/></button>
+          <button title="System Default" onClick={() => setTheme('system')} className={`p-1.5 rounded-md transition-colors ${theme === 'system' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Monitor size={13}/></button>
+          <button title="Dark Mode" onClick={() => setTheme('dark')} className={`p-1.5 rounded-md transition-colors ${theme === 'dark' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Moon size={13}/></button>
+        </div>
+
         <div className="relative" ref={ref}>
-          <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-neutral-50">
+          <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-canvas">
             <Avatar name={user?.name} color={user?.color} size="sm" />
             <span className="hidden sm:block text-left leading-tight">
               <span className="block text-[12.5px] font-medium text-text-primary">{user?.name}</span>
@@ -43,7 +52,7 @@ export default function Topbar({ title, subtitle, onMenu, actions }) {
             <div className="absolute right-0 mt-1.5 w-48 card shadow-pop py-1.5 animate-fadeIn">
               <button
                 onClick={() => { setOpen(false); navigate(user?.role === 'admin' ? '/admin/settings' : '/app/settings'); }}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-text-secondary hover:bg-neutral-50 hover:text-text-primary"
+                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-text-secondary hover:bg-canvas hover:text-text-primary"
               >
                 <Settings size={15} /> Settings
               </button>

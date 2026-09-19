@@ -3,6 +3,30 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-surface: #FFFFFF;
+    --color-canvas: #F5F6F8;
+    --color-border: #E3E5EA;
+    --color-border-soft: #ECEDF1;
+    --color-text-primary: #171A21;
+    --color-text-secondary: #666D7C;
+    --color-text-muted: #8A90A0;
+    --shadow-card: 0 1px 2px rgba(15,20,32,0.04), 0 1px 1px rgba(15,20,32,0.03);
+    --shadow-pop: 0 8px 24px rgba(15,20,32,0.12);
+  }
+
+  .dark {
+    --color-surface: #161C2C;
+    --color-canvas: #0B0E14;
+    --color-border: #333D54;
+    --color-border-soft: #232B3D;
+    --color-text-primary: #F5F6F8;
+    --color-text-secondary: #8A90A0;
+    --color-text-muted: #666D7C;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.5), 0 1px 1px rgba(0,0,0,0.3);
+    --shadow-pop: 0 8px 24px rgba(0,0,0,0.6);
+  }
+
   * { @apply border-border; }
   html { -webkit-font-smoothing: antialiased; }
   body {
@@ -27,16 +51,16 @@
     @apply inline-flex items-center justify-center gap-1.5 rounded-[7px] text-[13px] font-medium transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap;
   }
   .btn-primary { @apply btn bg-brand-500 text-white px-3.5 py-2 hover:bg-brand-600 active:bg-brand-700 shadow-sm; }
-  .btn-secondary { @apply btn bg-white text-text-primary px-3.5 py-2 border border-border hover:bg-neutral-50 active:bg-border-soft; }
+  .btn-secondary { @apply btn bg-surface text-text-primary px-3.5 py-2 border border-border hover:bg-canvas active:bg-border-soft; }
   .btn-ghost { @apply btn text-text-secondary px-2.5 py-1.5 hover:bg-black/5 hover:text-text-primary; }
   .btn-danger { @apply btn bg-danger-500 text-white px-3.5 py-2 hover:bg-danger-600 shadow-sm; }
   .input {
-    @apply w-full rounded-[7px] border border-border bg-white px-3 py-2 text-[13.5px] text-text-primary placeholder:text-text-muted transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400;
+    @apply w-full rounded-[7px] border border-border bg-surface px-3 py-2 text-[13.5px] text-text-primary placeholder:text-text-muted transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400;
   }
   .label {
     @apply block text-[12.5px] font-medium text-text-secondary mb-1.5;
   }
   .card {
-    @apply bg-white border border-border rounded-xl shadow-card;
+    @apply bg-surface border border-border rounded-xl shadow-card;
   }
 }

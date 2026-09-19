@@ -23,14 +23,14 @@ export default function Modal({ open, onClose, title, subtitle, children, footer
         onClick={onClose}
       />
       <div
-        className={`relative bg-white w-full ${width} sm:rounded-xl shadow-pop animate-slideUp max-h-[100vh] sm:max-h-[90vh] flex flex-col`}
+        className={`relative bg-surface w-full ${width} sm:rounded-xl shadow-pop animate-slideUp max-h-[100vh] sm:max-h-[90vh] flex flex-col`}
       >
         <div className="flex items-start justify-between px-5 py-4 border-b border-border shrink-0">
           <div>
             <h2 className="text-[15px] font-semibold text-text-primary">{title}</h2>
             {subtitle && <p className="text-[12.5px] text-text-secondary mt-0.5">{subtitle}</p>}
           </div>
-          <button onClick={onClose} className="text-text-muted hover:text-text-primary hover:bg-neutral-50 rounded-md p-1 -mt-1 -mr-1">
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary hover:bg-canvas rounded-md p-1 -mt-1 -mr-1">
             <X size={18} />
           </button>
         </div>

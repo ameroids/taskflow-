@@ -62,7 +62,7 @@ export default function AdminDashboard() {
                   <tr
                     key={user.id}
                     onClick={() => navigate(`/admin/users/${user.id}`)}
-                    className="border-t border-border-soft hover:bg-neutral-50/70 cursor-pointer"
+                    className="border-t border-border-soft hover:bg-canvas/70 cursor-pointer"
                   >
                     <td className="px-2 py-2.5">
                       <div className="flex items-center gap-2">

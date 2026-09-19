@@ -21,15 +21,15 @@ function RowMenu({ user, onEdit, onToggle, onDelete }) {
   }, []);
   return (
     <div className="relative" ref={ref} onClick={(e) => e.stopPropagation()}>
-      <button className="p-1.5 rounded-md text-text-muted hover:bg-neutral-50 hover:text-text-primary" onClick={() => setOpen((o) => !o)}>
+      <button className="p-1.5 rounded-md text-text-muted hover:bg-canvas hover:text-text-primary" onClick={() => setOpen((o) => !o)}>
         <MoreHorizontal size={16} />
       </button>
       {open && (
         <div className="absolute right-0 mt-1 w-44 card shadow-pop py-1 z-10 animate-fadeIn">
-          <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-neutral-50 hover:text-text-primary">
+          <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-canvas hover:text-text-primary">
             <Pencil size={13} /> Edit user
           </button>
-          <button onClick={() => { setOpen(false); onToggle(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-neutral-50 hover:text-text-primary">
+          <button onClick={() => { setOpen(false); onToggle(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-canvas hover:text-text-primary">
             <Power size={13} /> {user.status === 'active' ? 'Deactivate' : 'Activate'}
           </button>
           <button onClick={() => { setOpen(false); onDelete(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-danger-600 hover:bg-danger-50">
@@ -126,7 +126,7 @@ export default function AdminUsers() {
                 {filtered.map((u) => {
                   const s = statsFor(u.id);
                   return (
-                    <tr key={u.id} onClick={() => navigate(`/admin/users/${u.id}`)} className="border-b border-border-soft last:border-0 hover:bg-neutral-50/70 cursor-pointer">
+                    <tr key={u.id} onClick={() => navigate(`/admin/users/${u.id}`)} className="border-b border-border-soft last:border-0 hover:bg-canvas/70 cursor-pointer">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <Avatar name={u.name} color={u.color} size="sm" />

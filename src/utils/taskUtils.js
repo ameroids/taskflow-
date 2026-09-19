@@ -13,7 +13,7 @@ export const STATUS_META = {
   completed: { label: 'Completed', dot: 'bg-success-500', badge: 'bg-success-50 text-success-600', text: 'text-success-600' },
   pending: { label: 'Pending', dot: 'bg-amber-400', badge: 'bg-warning-50 text-warning-600', text: 'text-warning-600' },
   overdue: { label: 'Overdue', dot: 'bg-danger-500', badge: 'bg-danger-50 text-danger-600', text: 'text-danger-600' },
-  not_completed: { label: 'Not completed', dot: 'bg-text-muted', badge: 'bg-neutral-50 text-text-secondary', text: 'text-text-secondary' },
+  not_completed: { label: 'Not completed', dot: 'bg-text-muted', badge: 'bg-canvas text-text-secondary', text: 'text-text-secondary' },
 };
 
 export const PRIORITY_META = {
