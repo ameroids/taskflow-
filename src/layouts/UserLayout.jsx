@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { LayoutGrid, ListChecks, TrendingUp, History, Settings as SettingsIcon } from 'lucide-react';
 import Sidebar from '../components/layout/Sidebar';
 import Topbar from '../components/layout/Topbar';
+import Footer from '../components/layout/Footer';
 
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutGrid, end: true },
@@ -32,8 +33,11 @@ export default function UserLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar title={title} subtitle={subtitle} onMenu={() => setOpen(true)} />
         <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-          <div className="max-w-[1100px] mx-auto animate-fadeIn">
-            <Outlet />
+          <div className="max-w-[1100px] mx-auto animate-fadeIn min-h-[calc(100vh-140px)] flex flex-col justify-between">
+            <div>
+              <Outlet />
+            </div>
+            <Footer />
           </div>
         </main>
       </div>

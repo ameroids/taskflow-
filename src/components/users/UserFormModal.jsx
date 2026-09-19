@@ -35,7 +35,9 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
       );
       if (taken) errs.username = 'This username is already in use.';
     }
-    if (!form.password || form.password.length < 4) errs.password = 'At least 4 characters.';
+    if (!initialUser && (!form.password || form.password.length < 4)) {
+      errs.password = 'At least 4 characters.';
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -53,7 +55,7 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
       open={open}
       onClose={onClose}
       title={initialUser ? 'Edit user' : 'Add new user'}
-      subtitle={initialUser ? 'Update this team member\'s details.' : 'Create a demo account for a new team member.'}
+      subtitle={initialUser ? 'Update this team member\'s details.' : 'Create an account for a new team member.'}
       footer={
         <>
           <button className="btn-secondary" onClick={onClose} type="button">Cancel</button>
@@ -83,11 +85,13 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
             <input className="input" placeholder="e.g. divya" value={form.username} onChange={set('username')} autoCapitalize="none" />
             {errors.username && <p className="text-[12px] text-danger-500 mt-1">{errors.username}</p>}
           </div>
-          <div>
-            <label className="label">Password</label>
-            <input className="input" placeholder="Demo password" value={form.password} onChange={set('password')} />
-            {errors.password && <p className="text-[12px] text-danger-500 mt-1">{errors.password}</p>}
-          </div>
+          {!initialUser && (
+            <div>
+              <label className="label">Password</label>
+              <input className="input" placeholder="Initial password" value={form.password} onChange={set('password')} />
+              {errors.password && <p className="text-[12px] text-danger-500 mt-1">{errors.password}</p>}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -107,9 +111,6 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
           </div>
         </div>
 
-        <p className="text-[11.5px] text-text-muted leading-relaxed">
-          This is a demo credential system for local testing. Real authentication will be handled by Supabase Auth in a later phase.
-        </p>
       </form>
     </Modal>
   );

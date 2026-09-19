@@ -37,15 +37,7 @@ function LoginRoute() {
   return <Login />;
 }
 
-function Watermark() {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] flex items-center justify-center overflow-hidden mix-blend-multiply opacity-5">
-      <div className="text-[120px] font-black text-black -rotate-45 select-none whitespace-nowrap tracking-widest uppercase">
-        AMEROIDS
-      </div>
-    </div>
-  );
-}
+// Watermark removed per user request
 
 export default function App() {
   return (
@@ -53,7 +45,6 @@ export default function App() {
       <ToastProvider>
         <AuthProvider>
           <DataProvider>
-            <Watermark />
             <Routes>
               <Route path="/" element={<RootRedirect />} />
               <Route path="/login" element={<LoginRoute />} />

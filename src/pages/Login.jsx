@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Eye, EyeOff, ChevronDown, AlertCircle } from 'lucide-react';
-
-const DEMO_ACCOUNTS = [
-  { label: 'Admin', username: 'admin', password: 'admin123' },
-  { label: 'Employee — Taha', username: 'taha', password: 'user123' },
-  { label: 'Employee — Husain', username: 'husain', password: 'user123' },
-];
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
@@ -17,7 +11,6 @@ export default function Login() {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,12 +32,6 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillDemo = (acc) => {
-    setUsername(acc.username);
-    setPassword(acc.password);
-    setError('');
   };
 
   return (
@@ -142,30 +129,6 @@ export default function Login() {
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-
-          <div className="mt-6 border border-border-soft rounded-lg overflow-hidden">
-            <button
-              className="w-full flex items-center justify-between px-3.5 py-2.5 text-[12.5px] font-medium text-text-secondary hover:bg-neutral-50"
-              onClick={() => setShowDemo((s) => !s)}
-            >
-              Demo credentials
-              <ChevronDown size={15} className={`transition-transform ${showDemo ? 'rotate-180' : ''}`} />
-            </button>
-            {showDemo && (
-              <div className="px-3.5 pb-3 pt-1 space-y-1.5">
-                {DEMO_ACCOUNTS.map((acc) => (
-                  <button
-                    key={acc.username}
-                    onClick={() => fillDemo(acc)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md hover:bg-neutral-50 text-left"
-                  >
-                    <span className="text-[12.5px] text-text-secondary">{acc.label}</span>
-                    <span className="text-[11.5px] text-text-muted font-mono">{acc.username} / {acc.password}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>

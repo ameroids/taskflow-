@@ -15,18 +15,12 @@ export default function UserSettings() {
             <p className="text-[12.5px] text-text-secondary">{user?.title}</p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 mt-5">
-          <div>
-            <label className="label">Username</label>
-            <input className="input" value={user?.username} disabled />
-          </div>
-          <div>
-            <label className="label">Password</label>
-            <input className="input" value={user?.password} disabled type="password" />
-          </div>
+        <div className="mt-5">
+          <label className="label">Username</label>
+          <input className="input max-w-xs" value={user?.username} disabled />
         </div>
         <p className="text-[11.5px] text-text-muted mt-3">
-          Profile editing and password changes will be available once Supabase Auth is connected. For now, contact your admin to update these details.
+          Your profile details and credentials are securely managed by your administrator.
         </p>
       </div>
     </div>

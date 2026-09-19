@@ -59,27 +59,39 @@ export default function AdminUsers() {
   const statsFor = (userId) => computeStats(tasks.filter((t) => t.assignedTo === userId));
 
   const handleSubmit = async (form) => {
-    if (editing) {
-      await editUser(editing.id, form);
-      notify(`${form.name}'s details were updated.`, 'success', { title: 'User updated' });
-    } else {
-      await addUser(form);
-      notify(`${form.name} can now log in with the credentials you set.`, 'success', { title: 'User added' });
+    try {
+      if (editing) {
+        await editUser(editing.id, form);
+        notify(`${form.name}'s details were updated.`, 'success', { title: 'User updated' });
+      } else {
+        await addUser(form);
+        notify(`${form.name} can now log in with the credentials you set.`, 'success', { title: 'User added' });
+      }
+      setFormOpen(false);
+      setEditing(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Action failed' });
     }
-    setFormOpen(false);
-    setEditing(null);
   };
 
   const toggleStatus = async (u) => {
-    const next = u.status === 'active' ? 'inactive' : 'active';
-    await editUser(u.id, { status: next });
-    notify(`${u.name} is now ${next}.`, next === 'active' ? 'success' : 'warning');
+    try {
+      const next = u.status === 'active' ? 'inactive' : 'active';
+      await editUser(u.id, { status: next });
+      notify(`${u.name} is now ${next}.`, next === 'active' ? 'success' : 'warning');
+    } catch (err) {
+      notify(err.message, 'error');
+    }
   };
 
   const handleDelete = async () => {
-    await removeUser(confirmTarget.id);
-    notify(`${confirmTarget.name} was removed.`, 'success', { title: 'User deleted' });
-    setConfirmTarget(null);
+    try {
+      await removeUser(confirmTarget.id);
+      notify(`${confirmTarget.name} was removed.`, 'success', { title: 'User deleted' });
+      setConfirmTarget(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Delete failed' });
+    }
   };
 
   return (

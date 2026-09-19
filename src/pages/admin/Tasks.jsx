@@ -7,6 +7,7 @@ import TaskFormModal from '../../components/tasks/TaskFormModal';
 import TaskDetailModal from '../../components/tasks/TaskDetailModal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { applyTaskFilters } from '../../utils/taskUtils';
+import { addDaysISO, combineDateTime } from '../../utils/dateUtils';
 import { Plus } from 'lucide-react';
 
 export default function AdminTasks() {
@@ -22,28 +23,59 @@ export default function AdminTasks() {
   const filtered = useMemo(() => applyTaskFilters(tasks, filters), [tasks, filters]);
 
   const handleCreate = async (form) => {
-    await addTask(form);
-    notify(`"${form.title}" was assigned to ${getUserById(form.assignedTo)?.name}.`, 'success', { title: 'Task created' });
-    setFormOpen(false);
+    try {
+      const { isRecurring, recurrenceDays, ...taskData } = form;
+      if (isRecurring && recurrenceDays > 1) {
+        const baseTaskDate = combineDateTime(taskData.date, '00:00') || new Date();
+        const baseDeadlineDate = combineDateTime(taskData.deadlineDate, '00:00') || new Date();
+        
+        for (let i = 0; i < recurrenceDays; i++) {
+          await addTask({
+            ...taskData,
+            date: addDaysISO(i, baseTaskDate),
+            deadlineDate: addDaysISO(i, baseDeadlineDate),
+          });
+        }
+        notify(`${recurrenceDays} daily tasks for "${taskData.title}" were assigned to ${getUserById(taskData.assignedTo)?.name}.`, 'success', { title: 'Recurring tasks created' });
+      } else {
+        await addTask(taskData);
+        notify(`"${taskData.title}" was assigned to ${getUserById(taskData.assignedTo)?.name}.`, 'success', { title: 'Task created' });
+      }
+      setFormOpen(false);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Task creation failed' });
+    }
   };
 
   const handleEdit = async (form) => {
-    await editTask(editingTask.id, form);
-    notify('Task updated.', 'success');
-    setEditingTask(null);
-    setActiveTask(null);
+    try {
+      await editTask(editingTask.id, form);
+      notify('Task updated.', 'success');
+      setEditingTask(null);
+      setActiveTask(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Update failed' });
+    }
   };
 
   const handleUpdateStatus = async (id, patch) => {
-    await editTask(id, patch);
-    notify('Task status updated.', 'success');
+    try {
+      await editTask(id, patch);
+      notify('Task status updated.', 'success');
+    } catch (err) {
+      notify(err.message, 'error');
+    }
   };
 
   const handleDelete = async () => {
-    await removeTask(deleteTarget.id);
-    notify('Task deleted.', 'success');
-    setDeleteTarget(null);
-    setActiveTask(null);
+    try {
+      await removeTask(deleteTarget.id);
+      notify('Task deleted.', 'success');
+      setDeleteTarget(null);
+      setActiveTask(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Delete failed' });
+    }
   };
 
   return (

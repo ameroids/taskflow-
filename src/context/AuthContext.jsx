@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     (async () => {
-      const session = authService.getSession();
+      const session = await authService.getSession();
       if (session) {
         const full = await db.getUserById(session.id);
         if (full && full.status !== 'inactive') {
@@ -22,20 +22,30 @@ export function AuthProvider({ children }) {
           authService.logout();
         }
       }
+      await new Promise((res) => setTimeout(res, 1000));
       setInitializing(false);
     })();
   }, []);
 
   const login = useCallback(async (username, password) => {
-    const session = await authService.login(username, password);
-    const full = await db.getUserById(session.id);
-    setUser(full);
-    return full;
+    setInitializing(true);
+    try {
+      const session = await authService.login(username, password);
+      const full = await db.getUserById(session.id);
+      setUser(full);
+      await new Promise(r => setTimeout(r, 1000));
+      return full;
+    } finally {
+      setInitializing(false);
+    }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    setInitializing(true);
+    await new Promise(r => setTimeout(r, 1000));
     authService.logout();
     setUser(null);
+    setInitializing(false);
   }, []);
 
   const refreshUser = useCallback(async () => {

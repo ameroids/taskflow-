@@ -1,35 +1,31 @@
-import { getUsers } from './db';
+import { supabase } from './supabase';
 
-const SESSION_KEY = 'taskflow_session';
+const DOMAIN = '@taskflow.local';
 
-// Simulated auth — swap this file's internals for Supabase Auth
-// (supabase.auth.signInWithPassword / onAuthStateChange) later without
-// touching AuthContext or any page that consumes it.
 export async function login(username, password) {
-  const users = await getUsers();
-  const match = users.find(
-    (u) => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password
-  );
-  if (!match) {
-    throw new Error('Incorrect username or password.');
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: username.trim().toLowerCase() + DOMAIN,
+    password: password,
+  });
+
+  if (error) {
+    if (error.message.includes('Invalid login credentials')) {
+      throw new Error('Incorrect username or password.');
+    }
+    throw new Error(error.message);
   }
-  if (match.status === 'inactive') {
-    throw new Error('You are inactive, kindly contact your admin.');
-  }
-  const session = { id: match.id, username: match.username, role: match.role, name: match.name };
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  return session;
+
+  return { id: data.user.id };
 }
 
-export function logout() {
-  localStorage.removeItem(SESSION_KEY);
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
-export function getSession() {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+export async function getSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (data?.session) {
+    return { id: data.session.user.id };
   }
+  return null;
 }

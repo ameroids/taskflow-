@@ -15,6 +15,8 @@ const emptyForm = {
 
 export default function TaskFormModal({ open, onClose, onSubmit, users, initialTask }) {
   const [form, setForm] = useState(emptyForm);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceDays, setRecurrenceDays] = useState(30);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -33,6 +35,8 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
       } else {
         setForm({ ...emptyForm, assignedTo: users?.[0]?.id || '' });
       }
+      setIsRecurring(false);
+      setRecurrenceDays(30);
       setErrors({});
     }
   }, [open, initialTask, users]);
@@ -54,7 +58,7 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
     e.preventDefault();
     if (!validate()) return;
     setSaving(true);
-    await onSubmit(form);
+    await onSubmit({ ...form, isRecurring, recurrenceDays });
     setSaving(false);
   };
 
@@ -124,6 +128,21 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
             {errors.deadlineTime && <p className="text-[12px] text-danger-500 mt-1">{errors.deadlineTime}</p>}
           </div>
         </div>
+
+        {!initialTask && (
+          <div className="pt-2 border-t border-border-soft">
+            <label className="flex items-center gap-2 cursor-pointer mb-2">
+              <input type="checkbox" className="rounded border-border text-brand-500 focus:ring-brand-500" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} />
+              <span className="text-[13.5px] text-text-primary font-medium">Make this a daily recurring task</span>
+            </label>
+            {isRecurring && (
+              <div className="pl-6">
+                <label className="label text-[12px]">For how many days?</label>
+                <input type="number" min="2" max="365" className="input w-32" value={recurrenceDays} onChange={(e) => setRecurrenceDays(parseInt(e.target.value) || 0)} />
+              </div>
+            )}
+          </div>
+        )}
       </form>
     </Modal>
   );

@@ -44,11 +44,6 @@ export default function Sidebar({ items, open, onClose, brandSub }) {
           ))}
         </nav>
 
-        <div className="px-3 pb-4 pt-2 border-t border-white/10">
-          <p className="px-3 text-[10.5px] text-white/30 leading-relaxed">
-            Demo build — data stored locally in this browser.
-          </p>
-        </div>
       </aside>
     </>
   );

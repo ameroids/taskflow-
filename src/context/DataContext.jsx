@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import * as db from '../services/db';
+import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
 
@@ -14,13 +15,20 @@ export function DataProvider({ children }) {
     setTasks(t);
   }, []);
 
+  const { user } = useAuth();
+
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await refresh();
-      setLoading(false);
-    })();
-  }, [refresh]);
+    if (user) {
+      (async () => {
+        setLoading(true);
+        await refresh();
+        setLoading(false);
+      })();
+    } else {
+      setUsers([]);
+      setTasks([]);
+    }
+  }, [user, refresh]);
 
   // ---- Users ----
   const addUser = useCallback(async (payload) => {
