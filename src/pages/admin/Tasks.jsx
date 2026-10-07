@@ -34,6 +34,7 @@ export default function AdminTasks() {
         for (let i = 0; i < recurrenceDays; i++) {
           await addTask({
             ...taskData,
+            isDaily: true,
             date: addDaysISO(i, baseTaskDate),
             deadlineDate: addDaysISO(i, baseDeadlineDate),
           });

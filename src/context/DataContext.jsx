@@ -11,6 +11,19 @@ export function DataProvider({ children }) {
 
   const refresh = useCallback(async () => {
     const [u, t] = await Promise.all([db.getUsers(), db.getTasks()]);
+    
+    // Retroactively identify recurring/daily tasks by checking for duplicate titles per user
+    const titleCounts = {};
+    t.forEach(task => {
+      const key = `${task.assignedTo}-${task.title.toLowerCase().trim()}`;
+      titleCounts[key] = (titleCounts[key] || 0) + 1;
+    });
+
+    t.forEach(task => {
+      const key = `${task.assignedTo}-${task.title.toLowerCase().trim()}`;
+      task.isDaily = task.isDaily || titleCounts[key] > 1;
+    });
+
     setUsers(u);
     setTasks(t);
   }, []);

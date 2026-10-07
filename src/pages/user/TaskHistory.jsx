@@ -16,13 +16,30 @@ export default function UserTaskHistory() {
   const [filters, setFilters] = useState({ search: '', status: 'all', priority: 'all', date: '' });
   const [activeTask, setActiveTask] = useState(null);
 
-  const myTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id), [tasks, user.id]);
+  const [taskType, setTaskType] = useState('regular'); // 'regular' | 'daily'
+
+  const myTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id && (taskType === 'daily' ? t.isDaily : !t.isDaily)), [tasks, user.id, taskType]);
   const filtered = useMemo(() => sortTasksByUrgency(applyTaskFilters(myTasks, filters)).reverse(), [myTasks, filters]);
 
   const handleUpdateStatus = async (id, patch) => { await editTask(id, patch); };
 
   return (
     <div className="space-y-5">
+      <div className="flex bg-surface p-1 rounded-lg border border-border w-fit">
+        <button
+          className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${taskType === 'regular' ? 'bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+          onClick={() => setTaskType('regular')}
+        >
+          Regular Tasks
+        </button>
+        <button
+          className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${taskType === 'daily' ? 'bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+          onClick={() => setTaskType('daily')}
+        >
+          Daily / Recurring
+        </button>
+      </div>
+
       <TaskFilters filters={filters} setFilters={setFilters} />
 
       <div className="card overflow-hidden">
