@@ -16,6 +16,7 @@ export default function TaskDetailModal({
   onUpdateStatus, // (id, patch) => Promise
   onEdit,
   onDelete,
+  onExtend,
 }) {
   const [mode, setMode] = useState(null); // 'complete' | 'not_completed' | null
   const [text, setText] = useState('');
@@ -137,8 +138,13 @@ export default function TaskDetailModal({
 
         {role === 'admin' && (
           <div className="border-t border-border-soft pt-4 flex items-center gap-2">
+            {onExtend && (
+              <button className="btn-secondary flex-1" onClick={() => onExtend(task)}>
+                <Calendar size={14} /> Extend
+              </button>
+            )}
             <button className="btn-secondary flex-1" onClick={() => onEdit(task)}>
-              <Pencil size={14} /> Edit task
+              <Pencil size={14} /> Edit
             </button>
             <button className="btn-danger flex-1" onClick={() => onDelete(task)}>
               <Trash2 size={14} /> Delete

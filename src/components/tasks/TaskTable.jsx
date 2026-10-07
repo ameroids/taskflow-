@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Calendar } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import StatusBadge from '../ui/StatusBadge';
 import PriorityBadge from '../ui/PriorityBadge';
@@ -8,7 +8,7 @@ import { getDerivedStatus, sortTasksByUrgency } from '../../utils/taskUtils';
 import { formatDateShort, formatTime } from '../../utils/dateUtils';
 import { ListChecks } from 'lucide-react';
 
-function RowMenu({ onEdit, onDelete }) {
+function RowMenu({ onEdit, onDelete, onExtend }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
@@ -22,7 +22,12 @@ function RowMenu({ onEdit, onDelete }) {
         <MoreHorizontal size={16} />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-40 card shadow-pop py-1 z-10 animate-fadeIn">
+        <div className="absolute right-0 mt-1 w-44 card shadow-pop py-1 z-10 animate-fadeIn">
+          {onExtend && (
+            <button onClick={() => { setOpen(false); onExtend(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-canvas hover:text-text-primary">
+              <Calendar size={13} /> Extend Deadline
+            </button>
+          )}
           <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[12.5px] text-text-secondary hover:bg-canvas hover:text-text-primary">
             <Pencil size={13} /> Edit
           </button>
@@ -35,7 +40,7 @@ function RowMenu({ onEdit, onDelete }) {
   );
 }
 
-export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete, showUser = true }) {
+export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete, onExtend, showUser = true }) {
   const sorted = sortTasksByUrgency(tasks);
 
   if (sorted.length === 0) {
@@ -86,8 +91,8 @@ export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete
                 <td className="px-3 py-3"><PriorityBadge priority={t.priority} size="sm" /></td>
                 <td className="px-3 py-3"><StatusBadge status={status} size="sm" /></td>
                 <td className="px-3 py-3">
-                  {(onEdit || onDelete) && (
-                    <RowMenu onEdit={() => onEdit(t)} onDelete={() => onDelete(t)} />
+                  {(onEdit || onDelete || onExtend) && (
+                    <RowMenu onEdit={() => onEdit(t)} onDelete={() => onDelete(t)} onExtend={onExtend ? () => onExtend(t) : undefined} />
                   )}
                 </td>
               </tr>

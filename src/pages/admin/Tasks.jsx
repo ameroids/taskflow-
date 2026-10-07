@@ -5,6 +5,7 @@ import TaskFilters from '../../components/tasks/TaskFilters';
 import TaskTable from '../../components/tasks/TaskTable';
 import TaskFormModal from '../../components/tasks/TaskFormModal';
 import TaskDetailModal from '../../components/tasks/TaskDetailModal';
+import ExtendDeadlineModal from '../../components/tasks/ExtendDeadlineModal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { applyTaskFilters } from '../../utils/taskUtils';
 import { addDaysISO, combineDateTime } from '../../utils/dateUtils';
@@ -17,6 +18,7 @@ export default function AdminTasks() {
   const [filters, setFilters] = useState({ search: '', status: 'all', priority: 'all', date: '', user: 'all' });
   const [formOpen, setFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [extendingTask, setExtendingTask] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -67,6 +69,16 @@ export default function AdminTasks() {
     }
   };
 
+  const handleExtendDeadline = async (id, newDeadlineDate) => {
+    try {
+      await editTask(id, { deadlineDate: newDeadlineDate });
+      notify('Task deadline extended.', 'success');
+      setExtendingTask(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Failed to extend deadline' });
+    }
+  };
+
   const handleDelete = async () => {
     try {
       await removeTask(deleteTarget.id);
@@ -94,6 +106,7 @@ export default function AdminTasks() {
           onRowClick={setActiveTask}
           onEdit={(t) => setEditingTask(t)}
           onDelete={(t) => setDeleteTarget(t)}
+          onExtend={(t) => setExtendingTask(t)}
         />
       </div>
 
@@ -114,6 +127,14 @@ export default function AdminTasks() {
         onUpdateStatus={handleUpdateStatus}
         onEdit={(t) => setEditingTask(t)}
         onDelete={(t) => setDeleteTarget(t)}
+        onExtend={(t) => { setActiveTask(null); setExtendingTask(t); }}
+      />
+
+      <ExtendDeadlineModal
+        open={!!extendingTask}
+        onClose={() => setExtendingTask(null)}
+        task={extendingTask}
+        onConfirm={handleExtendDeadline}
       />
 
       <ConfirmDialog

@@ -9,6 +9,7 @@ import TaskTable from '../../components/tasks/TaskTable';
 import TaskFilters from '../../components/tasks/TaskFilters';
 import TaskDetailModal from '../../components/tasks/TaskDetailModal';
 import TaskFormModal from '../../components/tasks/TaskFormModal';
+import ExtendDeadlineModal from '../../components/tasks/ExtendDeadlineModal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { computeStats, applyTaskFilters } from '../../utils/taskUtils';
 import { ArrowLeft } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function UserDetail() {
   const [filters, setFilters] = useState({ search: '', status: 'all', priority: 'all', date: '' });
   const [activeTask, setActiveTask] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+  const [extendingTask, setExtendingTask] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const userTasks = useMemo(() => tasks.filter((t) => t.assignedTo === id), [tasks, id]);
@@ -41,6 +43,16 @@ export default function UserDetail() {
   const handleUpdateStatus = async (taskId, patch) => {
     await editTask(taskId, patch);
     notify('Task status updated.', 'success');
+  };
+
+  const handleExtendDeadline = async (id, newDeadlineDate) => {
+    try {
+      await editTask(id, { deadlineDate: newDeadlineDate });
+      notify('Task deadline extended.', 'success');
+      setExtendingTask(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Failed to extend deadline' });
+    }
   };
 
   const handleDelete = async () => {
@@ -100,6 +112,7 @@ export default function UserDetail() {
             onRowClick={setActiveTask}
             onEdit={(t) => { setEditingTask(t); }}
             onDelete={(t) => setDeleteTarget(t)}
+            onExtend={(t) => setExtendingTask(t)}
           />
         </div>
       </div>
@@ -113,6 +126,7 @@ export default function UserDetail() {
         onUpdateStatus={handleUpdateStatus}
         onEdit={(t) => setEditingTask(t)}
         onDelete={(t) => setDeleteTarget(t)}
+        onExtend={(t) => { setActiveTask(null); setExtendingTask(t); }}
       />
 
       <TaskFormModal
@@ -121,6 +135,13 @@ export default function UserDetail() {
         onSubmit={handleEditSubmit}
         users={users}
         initialTask={editingTask}
+      />
+
+      <ExtendDeadlineModal
+        open={!!extendingTask}
+        onClose={() => setExtendingTask(null)}
+        task={extendingTask}
+        onConfirm={handleExtendDeadline}
       />
 
       <ConfirmDialog
