@@ -2,7 +2,7 @@ import StatusBadge from '../ui/StatusBadge';
 import PriorityBadge from '../ui/PriorityBadge';
 import { getDerivedStatus } from '../../utils/taskUtils';
 import { formatDateShort, formatTime } from '../../utils/dateUtils';
-import { Clock } from 'lucide-react';
+import { Clock, Repeat } from 'lucide-react';
 
 export default function TaskCard({ task, onClick }) {
   const status = getDerivedStatus(task);
@@ -13,7 +13,18 @@ export default function TaskCard({ task, onClick }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[14px] font-medium text-text-primary group-hover:text-brand-600 transition-colors truncate">{task.title}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[14px] font-medium text-text-primary group-hover:text-brand-600 transition-colors truncate">{task.title}</p>
+            {task.isDaily && (
+              <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
+                task.dailyStatus === 'stopped'
+                  ? 'bg-canvas text-text-muted border border-border'
+                  : 'bg-brand-50 text-brand-600 border border-brand-500/20'
+              }`}>
+                <Repeat size={10} /> {task.dailyStatus === 'stopped' ? 'Stopped' : 'Daily'}
+              </span>
+            )}
+          </div>
           {task.description && <p className="text-[12.5px] text-text-secondary mt-1 line-clamp-2">{task.description}</p>}
         </div>
         <StatusBadge status={status} size="sm" />

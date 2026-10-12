@@ -12,7 +12,7 @@ import { addDaysISO, combineDateTime } from '../../utils/dateUtils';
 import { Plus } from 'lucide-react';
 
 export default function AdminTasks() {
-  const { users, tasks, addTask, editTask, removeTask, getUserById } = useData();
+  const { users, tasks, addTask, editTask, removeTask, stopDailyTask, resumeDailyTask, getUserById } = useData();
   const { notify } = useToast();
 
   const [filters, setFilters] = useState({ search: '', status: 'all', priority: 'all', date: '', user: 'all' });
@@ -26,20 +26,14 @@ export default function AdminTasks() {
 
   const handleCreate = async (form) => {
     try {
-      const { isRecurring, recurrenceDays, ...taskData } = form;
-      if (isRecurring && recurrenceDays > 1) {
-        const baseTaskDate = combineDateTime(taskData.date, '00:00') || new Date();
-        const baseDeadlineDate = combineDateTime(taskData.deadlineDate, '00:00') || new Date();
-        
-        for (let i = 0; i < recurrenceDays; i++) {
-          await addTask({
-            ...taskData,
-            isDaily: true,
-            date: addDaysISO(i, baseTaskDate),
-            deadlineDate: addDaysISO(i, baseDeadlineDate),
-          });
-        }
-        notify(`${recurrenceDays} daily tasks for "${taskData.title}" were assigned to ${getUserById(taskData.assignedTo)?.name}.`, 'success', { title: 'Recurring tasks created' });
+      const { isDaily, ...taskData } = form;
+      if (isDaily) {
+        await addTask({
+          ...taskData,
+          isDaily: true,
+          dailyStatus: 'active',
+        });
+        notify(`Daily task "${taskData.title}" was assigned to ${getUserById(taskData.assignedTo)?.name}. It will repeat daily until stopped.`, 'success', { title: 'Daily task created' });
       } else {
         await addTask(taskData);
         notify(`"${taskData.title}" was assigned to ${getUserById(taskData.assignedTo)?.name}.`, 'success', { title: 'Task created' });
@@ -47,6 +41,26 @@ export default function AdminTasks() {
       setFormOpen(false);
     } catch (err) {
       notify(err.message, 'error', { title: 'Task creation failed' });
+    }
+  };
+
+  const handleStopDaily = async (task) => {
+    try {
+      await stopDailyTask(task);
+      notify(`Daily task "${task.title}" stopped.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'stopped' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleResumeDaily = async (task) => {
+    try {
+      await resumeDailyTask(task);
+      notify(`Daily task "${task.title}" resumed.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'active' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
     }
   };
 
@@ -108,6 +122,8 @@ export default function AdminTasks() {
           onEdit={(t) => setEditingTask(t)}
           onDelete={(t) => setDeleteTarget(t)}
           onExtend={(t) => setExtendingTask(t)}
+          onStopDaily={handleStopDaily}
+          onResumeDaily={handleResumeDaily}
         />
       </div>
 
@@ -129,6 +145,8 @@ export default function AdminTasks() {
         onEdit={(t) => setEditingTask(t)}
         onDelete={(t) => setDeleteTarget(t)}
         onExtend={(t) => { setActiveTask(null); setExtendingTask(t); }}
+        onStopDaily={handleStopDaily}
+        onResumeDaily={handleResumeDaily}
       />
 
       <ExtendDeadlineModal

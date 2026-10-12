@@ -98,6 +98,25 @@ export async function addTask(task) {
     delete payload.deadlineTime;
   }
 
+  // Handle daily recurrence metadata
+  let description = payload.description || '';
+  if (payload.isDaily) {
+    const meta = {
+      isDaily: true,
+      dailyStatus: payload.dailyStatus || 'active',
+      dailyGroupId: payload.dailyGroupId || `daily-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    };
+    description = `${description}\n<!--TASKFLOW_DAILY:${JSON.stringify(meta)}-->`;
+  }
+  payload.description = description;
+
+  // Clean non-database attributes before Supabase query
+  delete payload.isDaily;
+  delete payload.dailyStatus;
+  delete payload.dailyGroupId;
+  delete payload.isRecurring;
+  delete payload.recurrenceDays;
+
   const { data, error } = await supabase
     .from('tasks')
     .insert([payload])
@@ -132,6 +151,32 @@ export async function updateTask(id, patch) {
     delete payload.completedAt;
   }
 
+  // Handle daily metadata update if applicable
+  if (payload.dailyStatus !== undefined || payload.isDaily !== undefined) {
+    let currentDesc = payload.description !== undefined ? payload.description : null;
+    if (currentDesc === null) {
+      const { data: currentData } = await supabase.from('tasks').select('description').eq('id', id).single();
+      currentDesc = currentData?.description || '';
+    }
+
+    const metaMatch = currentDesc.match(/<!--TASKFLOW_DAILY:(.*?)-->/);
+    let meta = metaMatch ? JSON.parse(metaMatch[1]) : { isDaily: true, dailyStatus: 'active' };
+    if (payload.dailyStatus !== undefined) meta.dailyStatus = payload.dailyStatus;
+    if (payload.isDaily !== undefined) meta.isDaily = payload.isDaily;
+    if (payload.dailyGroupId !== undefined) meta.dailyGroupId = payload.dailyGroupId;
+
+    const cleanDesc = currentDesc.replace(/<!--TASKFLOW_DAILY:.*?-->/g, '').trimEnd();
+    payload.description = meta.isDaily
+      ? `${cleanDesc}\n<!--TASKFLOW_DAILY:${JSON.stringify(meta)}-->`
+      : cleanDesc;
+  }
+
+  delete payload.isDaily;
+  delete payload.dailyStatus;
+  delete payload.dailyGroupId;
+  delete payload.isRecurring;
+  delete payload.recurrenceDays;
+
   const { data, error } = await supabase
     .from('tasks')
     .update(payload)
@@ -149,11 +194,40 @@ export async function deleteTask(id) {
   return true;
 }
 
+export async function resetDemoData() {
+  return true;
+}
+
 // Utility to convert snake_case back to camelCase for the frontend components
 function toCamelCase(obj) {
   if (!obj) return obj;
+
+  let isDaily = !!obj.is_daily;
+  let dailyStatus = 'active';
+  let dailyGroupId = null;
+  let description = obj.description || '';
+
+  if (description) {
+    const metaMatch = description.match(/<!--TASKFLOW_DAILY:(.*?)-->/);
+    if (metaMatch) {
+      try {
+        const meta = JSON.parse(metaMatch[1]);
+        isDaily = !!meta.isDaily;
+        dailyStatus = meta.dailyStatus || 'active';
+        dailyGroupId = meta.dailyGroupId || null;
+        description = description.replace(/<!--TASKFLOW_DAILY:.*?-->/g, '').trimEnd();
+      } catch (e) {
+        // Ignore parse error
+      }
+    }
+  }
+
   return {
     ...obj,
+    description,
+    isDaily,
+    dailyStatus,
+    dailyGroupId,
     assignedTo: obj.assigned_to,
     assignedBy: obj.assigned_by,
     deadlineDate: obj.deadline_date,

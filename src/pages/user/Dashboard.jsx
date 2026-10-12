@@ -1,19 +1,23 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { useToast } from '../../context/ToastContext';
 import StatCard from '../../components/ui/StatCard';
 import ProgressRing from '../../components/ui/ProgressRing';
 import ProgressBar from '../../components/ui/ProgressBar';
 import TaskCard from '../../components/tasks/TaskCard';
 import TaskDetailModal from '../../components/tasks/TaskDetailModal';
+import TaskFormModal from '../../components/tasks/TaskFormModal';
 import EmptyState from '../../components/ui/EmptyState';
 import { computeStats, computeTodayStats, sortTasksByUrgency } from '../../utils/taskUtils';
-import { ListChecks, CheckCircle2, Clock, AlertTriangle, CalendarCheck } from 'lucide-react';
+import { ListChecks, CheckCircle2, Clock, AlertTriangle, CalendarCheck, Plus } from 'lucide-react';
 
 export default function UserDashboard() {
   const { user } = useAuth();
-  const { tasks, editTask } = useData();
+  const { tasks, addTask, editTask, stopDailyTask, resumeDailyTask } = useData();
+  const { notify } = useToast();
   const [activeTask, setActiveTask] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
 
   const myTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id), [tasks, user.id]);
   const stats = useMemo(() => computeStats(myTasks), [myTasks]);
@@ -23,17 +27,70 @@ export default function UserDashboard() {
     [myTasks]
   );
 
+  const handleCreate = async (form) => {
+    try {
+      const { isDaily, ...taskData } = form;
+      await addTask({
+        ...taskData,
+        assignedTo: user.id,
+        assignedBy: user.id,
+        isDaily: !!isDaily,
+        dailyStatus: isDaily ? 'active' : undefined,
+      });
+      notify(
+        isDaily
+          ? `Daily task "${taskData.title}" created. It will repeat daily until stopped.`
+          : `Task "${taskData.title}" created.`,
+        'success',
+        { title: 'Task created' }
+      );
+      setFormOpen(false);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Failed to create task' });
+    }
+  };
+
   const handleUpdateStatus = async (id, patch) => {
-    await editTask(id, patch);
+    try {
+      await editTask(id, patch);
+      notify('Task status updated.', 'success');
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleStopDaily = async (task) => {
+    try {
+      await stopDailyTask(task);
+      notify(`Daily task "${task.title}" stopped.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'stopped' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleResumeDaily = async (task) => {
+    try {
+      await resumeDailyTask(task);
+      notify(`Daily task "${task.title}" resumed.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'active' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
   };
 
   const greeting = new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening';
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-[19px] font-semibold text-text-primary">{greeting}, {user.name.split(' ')[0]}</h2>
-        <p className="text-[13.5px] text-text-secondary mt-0.5">Here's what's on your plate today.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[19px] font-semibold text-text-primary">{greeting}, {user.name.split(' ')[0]}</h2>
+          <p className="text-[13.5px] text-text-secondary mt-0.5">Here's what's on your plate today.</p>
+        </div>
+        <button className="btn-primary shrink-0" onClick={() => setFormOpen(true)}>
+          <Plus size={15} /> Create task
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -81,8 +138,19 @@ export default function UserDashboard() {
         open={!!activeTask}
         onClose={() => setActiveTask(null)}
         task={activeTask}
+        user={user}
         role="employee"
         onUpdateStatus={handleUpdateStatus}
+        onStopDaily={handleStopDaily}
+        onResumeDaily={handleResumeDaily}
+      />
+
+      <TaskFormModal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSubmit={handleCreate}
+        users={[user]}
+        currentUser={user}
       />
     </div>
   );

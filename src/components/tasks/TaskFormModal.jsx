@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import Modal from '../ui/Modal';
 import { PRIORITY_OPTIONS } from '../../utils/taskUtils';
@@ -13,12 +14,13 @@ const emptyForm = {
   priority: 'Medium',
 };
 
-export default function TaskFormModal({ open, onClose, onSubmit, users, initialTask }) {
+export default function TaskFormModal({ open, onClose, onSubmit, users, initialTask, currentUser }) {
   const [form, setForm] = useState(emptyForm);
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [recurrenceDays, setRecurrenceDays] = useState(30);
+  const [isDaily, setIsDaily] = useState(false);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+
+  const isEmployee = currentUser && currentUser.role === 'employee';
 
   useEffect(() => {
     if (open) {
@@ -32,14 +34,17 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
           deadlineTime: initialTask.deadlineTime,
           priority: initialTask.priority,
         });
+        setIsDaily(!!initialTask.isDaily);
       } else {
-        setForm({ ...emptyForm, assignedTo: users?.[0]?.id || '' });
+        const defaultAssignee = isEmployee
+          ? currentUser.id
+          : users?.[0]?.id || '';
+        setForm({ ...emptyForm, assignedTo: defaultAssignee });
+        setIsDaily(false);
       }
-      setIsRecurring(false);
-      setRecurrenceDays(30);
       setErrors({});
     }
-  }, [open, initialTask, users]);
+  }, [open, initialTask, users, currentUser, isEmployee]);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -58,18 +63,30 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
     e.preventDefault();
     if (!validate()) return;
     setSaving(true);
-    await onSubmit({ ...form, isRecurring, recurrenceDays });
+    await onSubmit({ ...form, isDaily });
     setSaving(false);
   };
 
   const activeUsers = (users || []).filter((u) => u.status === 'active');
 
+  const modalTitle = initialTask
+    ? 'Edit task'
+    : isEmployee
+    ? 'Create your task'
+    : 'Create task';
+
+  const modalSubtitle = initialTask
+    ? 'Update the details below.'
+    : isEmployee
+    ? 'Add a task to your workspace. Admin will also be able to view and track it.'
+    : 'Assign a new task to a team member.';
+
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={initialTask ? 'Edit task' : 'Create task'}
-      subtitle={initialTask ? 'Update the details below.' : 'Assign a new task to a team member.'}
+      title={modalTitle}
+      subtitle={modalSubtitle}
       width="max-w-xl"
       footer={
         <>
@@ -83,24 +100,41 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">Task title</label>
-          <input className="input" placeholder="e.g. Prepare daily sales report" value={form.title} onChange={set('title')} />
+          <input
+            className="input"
+            placeholder="e.g. Prepare daily sales report"
+            value={form.title}
+            onChange={set('title')}
+          />
           {errors.title && <p className="text-[12px] text-danger-500 mt-1">{errors.title}</p>}
         </div>
 
         <div>
           <label className="label">Description</label>
-          <textarea className="input min-h-[80px] resize-none" placeholder="Add details the assignee will need…" value={form.description} onChange={set('description')} />
+          <textarea
+            className="input min-h-[80px] resize-none"
+            placeholder="Add details the assignee will need…"
+            value={form.description}
+            onChange={set('description')}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="label">Assign to</label>
-            <select className="input" value={form.assignedTo} onChange={set('assignedTo')}>
-              <option value="" disabled>Select team member</option>
-              {activeUsers.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
-              ))}
-            </select>
+            {isEmployee ? (
+              <div className="input bg-canvas text-text-primary flex items-center justify-between text-[13px] py-2">
+                <span>{currentUser.name}</span>
+                <span className="text-[11px] font-medium bg-brand-50 text-brand-600 px-1.5 py-0.5 rounded">You</span>
+              </div>
+            ) : (
+              <select className="input" value={form.assignedTo} onChange={set('assignedTo')}>
+                <option value="" disabled>Select team member</option>
+                {activeUsers.map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+            )}
             {errors.assignedTo && <p className="text-[12px] text-danger-500 mt-1">{errors.assignedTo}</p>}
           </div>
           <div>
@@ -131,16 +165,22 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
 
         {!initialTask && (
           <div className="pt-2 border-t border-border-soft">
-            <label className="flex items-center gap-2 cursor-pointer mb-2">
-              <input type="checkbox" className="rounded border-border text-brand-500 focus:ring-brand-500" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} />
-              <span className="text-[13.5px] text-text-primary font-medium">Make this a daily recurring task</span>
-            </label>
-            {isRecurring && (
-              <div className="pl-6">
-                <label className="label text-[12px]">For how many days?</label>
-                <input type="number" min="2" max="365" className="input w-32" value={recurrenceDays} onChange={(e) => setRecurrenceDays(parseInt(e.target.value) || 0)} />
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="rounded border-border text-brand-500 focus:ring-brand-500 mt-0.5 h-4 w-4"
+                checked={isDaily}
+                onChange={(e) => setIsDaily(e.target.checked)}
+              />
+              <div>
+                <span className="text-[13.5px] text-text-primary font-medium block">
+                  Daily task (repeats daily until stopped)
+                </span>
+                <span className="text-[12px] text-text-secondary block mt-0.5">
+                  This task will appear for the user every day until stopped.
+                </span>
               </div>
-            )}
+            </label>
           </div>
         )}
       </form>

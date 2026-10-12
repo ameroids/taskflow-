@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import * as db from '../services/db';
 import { useAuth } from './AuthContext';
+import { todayISO } from '../utils/dateUtils';
 
 const DataContext = createContext(null);
 
@@ -22,10 +23,55 @@ export function DataProvider({ children }) {
     t.forEach(task => {
       const key = `${task.assignedTo}-${task.title.toLowerCase().trim()}`;
       task.isDaily = task.isDaily || titleCounts[key] > 1;
+      if (task.isDaily && !task.dailyStatus) {
+        task.dailyStatus = 'active';
+      }
     });
 
+    // For active daily tasks, ensure an instance exists for today
+    const today = todayISO();
+    const activeDailyGroups = new Map();
+
+    t.forEach(task => {
+      if (task.isDaily && task.dailyStatus === 'active') {
+        const groupKey = task.dailyGroupId || `${task.assignedTo}::${task.title.toLowerCase().trim()}`;
+        if (!activeDailyGroups.has(groupKey)) {
+          activeDailyGroups.set(groupKey, []);
+        }
+        activeDailyGroups.get(groupKey).push(task);
+      }
+    });
+
+    const newGeneratedTasks = [];
+    for (const [groupKey, groupTasks] of activeDailyGroups.entries()) {
+      const hasTodayTask = groupTasks.some(task => task.date === today);
+      if (!hasTodayTask && groupTasks.length > 0) {
+        const baseTask = [...groupTasks].sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+        try {
+          const generated = await db.addTask({
+            title: baseTask.title,
+            description: baseTask.description,
+            assignedTo: baseTask.assignedTo,
+            assignedBy: baseTask.assignedBy,
+            date: today,
+            deadlineDate: today,
+            deadlineTime: baseTask.deadlineTime || '18:00',
+            priority: baseTask.priority || 'Medium',
+            status: 'pending',
+            isDaily: true,
+            dailyStatus: 'active',
+            dailyGroupId: baseTask.dailyGroupId || groupKey,
+          });
+          newGeneratedTasks.push(generated);
+        } catch (err) {
+          console.error('Failed to auto-instantiate daily task for today:', err);
+        }
+      }
+    }
+
+    const allTasks = newGeneratedTasks.length > 0 ? [...newGeneratedTasks, ...t] : t;
     setUsers(u);
-    setTasks(t);
+    setTasks(allTasks);
   }, []);
 
   const { user } = useAuth();
@@ -79,6 +125,31 @@ export function DataProvider({ children }) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const stopDailyTask = useCallback(async (task) => {
+    const updated = await db.updateTask(task.id, { dailyStatus: 'stopped' });
+    const groupKey = task.dailyGroupId || `${task.assignedTo}::${task.title.toLowerCase().trim()}`;
+    setTasks((prev) =>
+      prev.map((t) => {
+        const tGroupKey = t.dailyGroupId || `${t.assignedTo}::${t.title.toLowerCase().trim()}`;
+        return (t.isDaily && tGroupKey === groupKey) ? { ...t, dailyStatus: 'stopped' } : t;
+      })
+    );
+    return updated;
+  }, []);
+
+  const resumeDailyTask = useCallback(async (task) => {
+    const updated = await db.updateTask(task.id, { dailyStatus: 'active' });
+    const groupKey = task.dailyGroupId || `${task.assignedTo}::${task.title.toLowerCase().trim()}`;
+    setTasks((prev) =>
+      prev.map((t) => {
+        const tGroupKey = t.dailyGroupId || `${t.assignedTo}::${t.title.toLowerCase().trim()}`;
+        return (t.isDaily && tGroupKey === groupKey) ? { ...t, dailyStatus: 'active' } : t;
+      })
+    );
+    await refresh();
+    return updated;
+  }, [refresh]);
+
   const resetDemoData = useCallback(async () => {
     await db.resetDemoData();
     await refresh();
@@ -91,6 +162,7 @@ export function DataProvider({ children }) {
     users, tasks, loading,
     addUser, editUser, removeUser,
     addTask, editTask, removeTask,
+    stopDailyTask, resumeDailyTask,
     getUserById, tasksForUser, resetDemoData, refresh,
   };
 
@@ -102,3 +174,4 @@ export function useData() {
   if (!ctx) throw new Error('useData must be used within DataProvider');
   return ctx;
 }
+

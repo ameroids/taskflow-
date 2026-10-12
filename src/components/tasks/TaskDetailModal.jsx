@@ -5,7 +5,7 @@ import PriorityBadge from '../ui/PriorityBadge';
 import Avatar from '../ui/Avatar';
 import { getDerivedStatus } from '../../utils/taskUtils';
 import { formatDate, formatDateTime, formatRelativeTimestamp } from '../../utils/dateUtils';
-import { CheckCircle2, XCircle, Pencil, Trash2, RotateCcw, Calendar, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, Pencil, Trash2, RotateCcw, Calendar, Clock, Repeat, StopCircle, PlayCircle } from 'lucide-react';
 
 export default function TaskDetailModal({
   open,
@@ -17,6 +17,8 @@ export default function TaskDetailModal({
   onEdit,
   onDelete,
   onExtend,
+  onStopDaily,
+  onResumeDaily,
 }) {
   const [mode, setMode] = useState(null); // 'complete' | 'not_completed' | null
   const [text, setText] = useState('');
@@ -54,6 +56,17 @@ export default function TaskDetailModal({
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={status} />
           <PriorityBadge priority={task.priority} />
+          {task.isDaily && (
+            task.dailyStatus === 'stopped' ? (
+              <span className="inline-flex items-center gap-1 text-[11.5px] font-medium px-2 py-0.5 rounded-full bg-canvas border border-border text-text-muted">
+                <StopCircle size={12} /> Daily (Stopped)
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11.5px] font-medium px-2 py-0.5 rounded-full bg-brand-50 border border-brand-500/20 text-brand-600">
+                <Repeat size={12} /> Daily task
+              </span>
+            )
+          )}
         </div>
 
         {task.description && (
@@ -66,7 +79,7 @@ export default function TaskDetailModal({
               <Avatar name={user.name} color={user.color} size="sm" />
               <div className="leading-tight">
                 <p className="font-medium text-text-primary">{user.name}</p>
-                <p className="text-[11.5px] text-text-muted">{user.title}</p>
+                <p className="text-[11.5px] text-text-muted">{user.title || (role === 'admin' ? 'Team member' : 'You')}</p>
               </div>
             </div>
           )}
@@ -77,6 +90,44 @@ export default function TaskDetailModal({
             <Clock size={14} className="text-text-muted" /> Due {formatDateTime(task.deadlineDate, task.deadlineTime)}
           </div>
         </div>
+
+        {task.isDaily && (
+          <div className={`rounded-lg p-3 border flex items-center justify-between gap-3 ${
+            task.dailyStatus === 'stopped'
+              ? 'bg-canvas border-border text-text-secondary'
+              : 'bg-brand-50/40 border-brand-500/20'
+          }`}>
+            <div className="text-[12.5px] min-w-0">
+              <p className={`font-medium ${task.dailyStatus === 'stopped' ? 'text-text-primary' : 'text-brand-700'}`}>
+                {task.dailyStatus === 'stopped' ? 'Daily recurrence stopped' : 'Repeats daily'}
+              </p>
+              <p className="text-[11.5px] text-text-muted truncate">
+                {task.dailyStatus === 'stopped'
+                  ? 'No future daily tasks will be scheduled.'
+                  : 'Repeats every day until stopped.'}
+              </p>
+            </div>
+            {task.dailyStatus === 'stopped' ? (
+              onResumeDaily && (
+                <button
+                  className="btn-secondary text-[12px] shrink-0"
+                  onClick={() => onResumeDaily(task)}
+                >
+                  <PlayCircle size={13} className="text-brand-500" /> Resume daily
+                </button>
+              )
+            ) : (
+              onStopDaily && (
+                <button
+                  className="btn-secondary text-[12px] text-danger-600 border-danger-500/20 hover:bg-danger-50 shrink-0"
+                  onClick={() => onStopDaily(task)}
+                >
+                  <StopCircle size={13} /> Stop daily task
+                </button>
+              )
+            )}
+          </div>
+        )}
 
         {task.status === 'completed' && (
           <div className="rounded-lg bg-success-50 border border-success-500/15 p-3">
@@ -136,19 +187,24 @@ export default function TaskDetailModal({
           </button>
         )}
 
-        {role === 'admin' && (
+        {/* Action buttons (Admin or Employee editing/deleting own task) */}
+        {(role === 'admin' || onEdit || onDelete) && (
           <div className="border-t border-border-soft pt-4 flex items-center gap-2">
-            {onExtend && (
+            {role === 'admin' && onExtend && (
               <button className="btn-secondary flex-1" onClick={() => onExtend(task)}>
                 <Calendar size={14} /> Extend
               </button>
             )}
-            <button className="btn-secondary flex-1" onClick={() => onEdit(task)}>
-              <Pencil size={14} /> Edit
-            </button>
-            <button className="btn-danger flex-1" onClick={() => onDelete(task)}>
-              <Trash2 size={14} /> Delete
-            </button>
+            {onEdit && (
+              <button className="btn-secondary flex-1" onClick={() => onEdit(task)}>
+                <Pencil size={14} /> Edit
+              </button>
+            )}
+            {onDelete && (
+              <button className="btn-danger flex-1" onClick={() => onDelete(task)}>
+                <Trash2 size={14} /> Delete
+              </button>
+            )}
           </div>
         )}
       </div>

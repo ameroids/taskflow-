@@ -62,7 +62,16 @@ export default function UserTaskHistory() {
                   const status = getDerivedStatus(t);
                   return (
                     <tr key={t.id} onClick={() => setActiveTask(t)} className="border-b border-border-soft last:border-0 hover:bg-canvas/70 cursor-pointer">
-                      <td className="px-4 py-3 max-w-[240px]"><p className="text-[13.5px] font-medium text-text-primary truncate">{t.title}</p></td>
+                      <td className="px-4 py-3 max-w-[240px]">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[13.5px] font-medium text-text-primary truncate">{t.title}</p>
+                          {t.isDaily && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-500/20 shrink-0">
+                              Daily
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-3 py-3 text-[13px] text-text-secondary whitespace-nowrap">{formatDateShort(t.date)}</td>
                       <td className="px-3 py-3"><PriorityBadge priority={t.priority} size="sm" /></td>
                       <td className="px-3 py-3"><StatusBadge status={status} size="sm" /></td>
@@ -84,6 +93,7 @@ export default function UserTaskHistory() {
         open={!!activeTask}
         onClose={() => setActiveTask(null)}
         task={activeTask}
+        user={user}
         role="employee"
         onUpdateStatus={handleUpdateStatus}
       />

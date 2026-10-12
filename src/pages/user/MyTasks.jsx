@@ -1,42 +1,143 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { useToast } from '../../context/ToastContext';
 import TaskFilters from '../../components/tasks/TaskFilters';
 import TaskCard from '../../components/tasks/TaskCard';
 import TaskDetailModal from '../../components/tasks/TaskDetailModal';
+import TaskFormModal from '../../components/tasks/TaskFormModal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import EmptyState from '../../components/ui/EmptyState';
 import { applyTaskFilters, sortTasksByUrgency } from '../../utils/taskUtils';
-import { ListChecks } from 'lucide-react';
+import { ListChecks, Plus } from 'lucide-react';
 
 export default function MyTasks() {
   const { user } = useAuth();
-  const { tasks, editTask } = useData();
+  const { tasks, addTask, editTask, removeTask, stopDailyTask, resumeDailyTask } = useData();
+  const { notify } = useToast();
+
   const [filters, setFilters] = useState({ search: '', status: 'all', priority: 'all', date: '' });
   const [activeTask, setActiveTask] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [taskType, setTaskType] = useState('regular'); // 'regular' | 'daily'
 
-  const myTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id && (taskType === 'daily' ? t.isDaily : !t.isDaily)), [tasks, user.id, taskType]);
+  const myTasks = useMemo(
+    () => tasks.filter((t) => t.assignedTo === user.id && (taskType === 'daily' ? t.isDaily : !t.isDaily)),
+    [tasks, user.id, taskType]
+  );
   const filtered = useMemo(() => sortTasksByUrgency(applyTaskFilters(myTasks, filters)), [myTasks, filters]);
 
+  const handleCreate = async (form) => {
+    try {
+      const { isDaily, ...taskData } = form;
+      await addTask({
+        ...taskData,
+        assignedTo: user.id,
+        assignedBy: user.id,
+        isDaily: !!isDaily,
+        dailyStatus: isDaily ? 'active' : undefined,
+      });
+      notify(
+        isDaily
+          ? `Daily task "${taskData.title}" created. It will repeat daily until stopped.`
+          : `Task "${taskData.title}" created successfully.`,
+        'success',
+        { title: 'Task created' }
+      );
+      setFormOpen(false);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Failed to create task' });
+    }
+  };
+
+  const handleEdit = async (form) => {
+    try {
+      await editTask(editingTask.id, form);
+      notify('Task updated.', 'success');
+      setEditingTask(null);
+      setActiveTask(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Update failed' });
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await removeTask(deleteTarget.id);
+      notify('Task deleted.', 'success');
+      setDeleteTarget(null);
+      setActiveTask(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Delete failed' });
+    }
+  };
+
   const handleUpdateStatus = async (id, patch) => {
-    await editTask(id, patch);
+    try {
+      await editTask(id, patch);
+      notify('Task status updated.', 'success');
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleStopDaily = async (task) => {
+    try {
+      await stopDailyTask(task);
+      notify(`Daily recurrence for "${task.title}" stopped.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'stopped' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleResumeDaily = async (task) => {
+    try {
+      await resumeDailyTask(task);
+      notify(`Daily task "${task.title}" resumed.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'active' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
   };
 
   return (
     <div className="space-y-5">
-      <div className="flex bg-surface p-1 rounded-lg border border-border w-fit">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex bg-surface p-1 rounded-lg border border-border w-fit">
+          <button
+            className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
+              taskType === 'regular'
+                ? 'bg-canvas text-text-primary shadow-sm'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+            onClick={() => setTaskType('regular')}
+          >
+            Regular Tasks
+          </button>
+          <button
+            className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
+              taskType === 'daily'
+                ? 'bg-canvas text-text-primary shadow-sm'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+            onClick={() => setTaskType('daily')}
+          >
+            Daily / Recurring
+          </button>
+        </div>
+
         <button
-          className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${taskType === 'regular' ? 'bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
-          onClick={() => setTaskType('regular')}
+          className="btn-primary shrink-0"
+          onClick={() => {
+            setEditingTask(null);
+            setFormOpen(true);
+          }}
         >
-          Regular Tasks
-        </button>
-        <button
-          className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${taskType === 'daily' ? 'bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
-          onClick={() => setTaskType('daily')}
-        >
-          Daily / Recurring
+          <Plus size={15} /> Create task
         </button>
       </div>
 
@@ -44,7 +145,15 @@ export default function MyTasks() {
 
       {filtered.length === 0 ? (
         <div className="card">
-          <EmptyState icon={ListChecks} title="No tasks match these filters" description="Try adjusting your search or filters." />
+          <EmptyState
+            icon={ListChecks}
+            title={taskType === 'daily' ? 'No daily tasks found' : 'No tasks match these filters'}
+            description={
+              taskType === 'daily'
+                ? 'You can create a daily task using the "Create task" button above.'
+                : 'Try adjusting your search or filters.'
+            }
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -54,12 +163,38 @@ export default function MyTasks() {
         </div>
       )}
 
+      <TaskFormModal
+        open={formOpen || !!editingTask}
+        onClose={() => {
+          setFormOpen(false);
+          setEditingTask(null);
+        }}
+        onSubmit={editingTask ? handleEdit : handleCreate}
+        users={[user]}
+        currentUser={user}
+        initialTask={editingTask}
+      />
+
       <TaskDetailModal
         open={!!activeTask}
         onClose={() => setActiveTask(null)}
         task={activeTask}
+        user={user}
         role="employee"
         onUpdateStatus={handleUpdateStatus}
+        onEdit={(t) => setEditingTask(t)}
+        onDelete={(t) => setDeleteTarget(t)}
+        onStopDaily={handleStopDaily}
+        onResumeDaily={handleResumeDaily}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete this task?"
+        description={`"${deleteTarget?.title}" will be permanently removed.`}
+        confirmLabel="Delete task"
       />
     </div>
   );

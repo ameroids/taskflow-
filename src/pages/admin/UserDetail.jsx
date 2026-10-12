@@ -17,7 +17,7 @@ import { ArrowLeft } from 'lucide-react';
 export default function UserDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { users, tasks, getUserById, editTask, removeTask } = useData();
+  const { users, tasks, getUserById, editTask, removeTask, stopDailyTask, resumeDailyTask } = useData();
   const { notify } = useToast();
   const user = getUserById(id);
 
@@ -26,6 +26,26 @@ export default function UserDetail() {
   const [editingTask, setEditingTask] = useState(null);
   const [extendingTask, setExtendingTask] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const handleStopDaily = async (task) => {
+    try {
+      await stopDailyTask(task);
+      notify(`Daily task "${task.title}" stopped.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'stopped' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleResumeDaily = async (task) => {
+    try {
+      await resumeDailyTask(task);
+      notify(`Daily task "${task.title}" resumed.`, 'success');
+      setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, dailyStatus: 'active' } : prev));
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
 
   const userTasks = useMemo(() => tasks.filter((t) => t.assignedTo === id), [tasks, id]);
   const stats = useMemo(() => computeStats(userTasks), [userTasks]);
@@ -113,6 +133,8 @@ export default function UserDetail() {
             onEdit={(t) => { setEditingTask(t); }}
             onDelete={(t) => setDeleteTarget(t)}
             onExtend={(t) => setExtendingTask(t)}
+            onStopDaily={handleStopDaily}
+            onResumeDaily={handleResumeDaily}
           />
         </div>
       </div>
@@ -127,6 +149,8 @@ export default function UserDetail() {
         onEdit={(t) => setEditingTask(t)}
         onDelete={(t) => setDeleteTarget(t)}
         onExtend={(t) => { setActiveTask(null); setExtendingTask(t); }}
+        onStopDaily={handleStopDaily}
+        onResumeDaily={handleResumeDaily}
       />
 
       <TaskFormModal
