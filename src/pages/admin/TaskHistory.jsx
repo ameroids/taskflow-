@@ -29,7 +29,7 @@ export default function TaskHistory() {
 
   return (
     <div className="space-y-5">
-      <TaskFilters filters={filters} setFilters={setFilters} users={users.filter((u) => u.role === 'employee')} showUserFilter />
+      <TaskFilters filters={filters} setFilters={setFilters} users={users.filter((u) => u.role === 'employee')} showUserFilter showTypeFilter />
 
       <div className="card overflow-hidden">
         {filtered.length === 0 ? (

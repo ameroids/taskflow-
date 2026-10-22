@@ -108,7 +108,7 @@ export default function AdminTasks() {
   return (
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <TaskFilters filters={filters} setFilters={setFilters} users={users.filter((u) => u.role === 'employee')} showUserFilter />
+        <TaskFilters filters={filters} setFilters={setFilters} users={users.filter((u) => u.role === 'employee')} showUserFilter showTypeFilter />
         <button className="btn-primary shrink-0" onClick={() => { setEditingTask(null); setFormOpen(true); }}>
           <Plus size={15} /> Create task
         </button>

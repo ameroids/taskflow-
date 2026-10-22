@@ -22,7 +22,9 @@ export function DataProvider({ children }) {
 
     t.forEach(task => {
       const key = `${task.assignedTo}-${task.title.toLowerCase().trim()}`;
-      task.isDaily = task.isDaily || titleCounts[key] > 1;
+      if (!task.hasExplicitDailyMeta) {
+        task.isDaily = task.isDaily || titleCounts[key] > 1;
+      }
       if (task.isDaily && !task.dailyStatus) {
         task.dailyStatus = 'active';
       }
@@ -150,6 +152,11 @@ export function DataProvider({ children }) {
     return updated;
   }, [refresh]);
 
+  const clearAllData = useCallback(async (deleteEmployees = false) => {
+    await db.clearAllTasks(deleteEmployees);
+    await refresh();
+  }, [refresh]);
+
   const resetDemoData = useCallback(async () => {
     await db.resetDemoData();
     await refresh();
@@ -163,6 +170,7 @@ export function DataProvider({ children }) {
     addUser, editUser, removeUser,
     addTask, editTask, removeTask,
     stopDailyTask, resumeDailyTask,
+    clearAllData,
     getUserById, tasksForUser, resetDemoData, refresh,
   };
 

@@ -16,27 +16,74 @@ export default function UserTaskHistory() {
   const [filters, setFilters] = useState({ search: '', status: 'all', priority: 'all', date: '' });
   const [activeTask, setActiveTask] = useState(null);
 
-  const [taskType, setTaskType] = useState('regular'); // 'regular' | 'daily'
+  const [taskType, setTaskType] = useState('all'); // 'all' | 'regular' | 'daily'
 
-  const myTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id && (taskType === 'daily' ? t.isDaily : !t.isDaily)), [tasks, user.id, taskType]);
+  const userTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id), [tasks, user.id]);
+  const regularCount = useMemo(() => userTasks.filter((t) => !t.isDaily).length, [userTasks]);
+  const dailyCount = useMemo(() => userTasks.filter((t) => t.isDaily).length, [userTasks]);
+
+  const myTasks = useMemo(() => {
+    if (taskType === 'regular') return userTasks.filter((t) => !t.isDaily);
+    if (taskType === 'daily') return userTasks.filter((t) => t.isDaily);
+    return userTasks;
+  }, [userTasks, taskType]);
   const filtered = useMemo(() => sortTasksByUrgency(applyTaskFilters(myTasks, filters)).reverse(), [myTasks, filters]);
 
   const handleUpdateStatus = async (id, patch) => { await editTask(id, patch); };
 
   return (
     <div className="space-y-5">
-      <div className="flex bg-surface p-1 rounded-lg border border-border w-fit">
+      <div className="flex bg-canvas p-1 rounded-lg border border-border w-fit items-center gap-1">
         <button
-          className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${taskType === 'regular' ? 'bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
-          onClick={() => setTaskType('regular')}
+          className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+            taskType === 'all'
+              ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
+              : 'text-text-secondary hover:text-text-primary font-medium'
+          }`}
+          onClick={() => setTaskType('all')}
         >
-          Regular Tasks
+          <span>All Tasks</span>
+          <span
+            className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
+              taskType === 'all' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
+            }`}
+          >
+            {userTasks.length}
+          </span>
         </button>
         <button
-          className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${taskType === 'daily' ? 'bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+          className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+            taskType === 'regular'
+              ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
+              : 'text-text-secondary hover:text-text-primary font-medium'
+          }`}
+          onClick={() => setTaskType('regular')}
+        >
+          <span>Regular Tasks</span>
+          <span
+            className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
+              taskType === 'regular' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
+            }`}
+          >
+            {regularCount}
+          </span>
+        </button>
+        <button
+          className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+            taskType === 'daily'
+              ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
+              : 'text-text-secondary hover:text-text-primary font-medium'
+          }`}
           onClick={() => setTaskType('daily')}
         >
-          Daily / Recurring
+          <span>Daily Tasks</span>
+          <span
+            className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
+              taskType === 'daily' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
+            }`}
+          >
+            {dailyCount}
+          </span>
         </button>
       </div>
 

@@ -22,12 +22,17 @@ export default function MyTasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const [taskType, setTaskType] = useState('regular'); // 'regular' | 'daily'
+  const [taskType, setTaskType] = useState('all'); // 'all' | 'regular' | 'daily'
 
-  const myTasks = useMemo(
-    () => tasks.filter((t) => t.assignedTo === user.id && (taskType === 'daily' ? t.isDaily : !t.isDaily)),
-    [tasks, user.id, taskType]
-  );
+  const userTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id), [tasks, user.id]);
+  const regularCount = useMemo(() => userTasks.filter((t) => !t.isDaily).length, [userTasks]);
+  const dailyCount = useMemo(() => userTasks.filter((t) => t.isDaily).length, [userTasks]);
+
+  const myTasks = useMemo(() => {
+    if (taskType === 'regular') return userTasks.filter((t) => !t.isDaily);
+    if (taskType === 'daily') return userTasks.filter((t) => t.isDaily);
+    return userTasks;
+  }, [userTasks, taskType]);
   const filtered = useMemo(() => sortTasksByUrgency(applyTaskFilters(myTasks, filters)), [myTasks, filters]);
 
   const handleCreate = async (form) => {
@@ -107,26 +112,57 @@ export default function MyTasks() {
   return (
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex bg-surface p-1 rounded-lg border border-border w-fit">
+        <div className="flex bg-canvas p-1 rounded-lg border border-border w-fit items-center gap-1">
           <button
-            className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
+            className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+              taskType === 'all'
+                ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
+                : 'text-text-secondary hover:text-text-primary font-medium'
+            }`}
+            onClick={() => setTaskType('all')}
+          >
+            <span>All Tasks</span>
+            <span
+              className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
+                taskType === 'all' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
+              }`}
+            >
+              {userTasks.length}
+            </span>
+          </button>
+          <button
+            className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
               taskType === 'regular'
-                ? 'bg-canvas text-text-primary shadow-sm'
-                : 'text-text-secondary hover:text-text-primary'
+                ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
+                : 'text-text-secondary hover:text-text-primary font-medium'
             }`}
             onClick={() => setTaskType('regular')}
           >
-            Regular Tasks
+            <span>Regular Tasks</span>
+            <span
+              className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
+                taskType === 'regular' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
+              }`}
+            >
+              {regularCount}
+            </span>
           </button>
           <button
-            className={`px-4 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
+            className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
               taskType === 'daily'
-                ? 'bg-canvas text-text-primary shadow-sm'
-                : 'text-text-secondary hover:text-text-primary'
+                ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
+                : 'text-text-secondary hover:text-text-primary font-medium'
             }`}
             onClick={() => setTaskType('daily')}
           >
-            Daily / Recurring
+            <span>Daily Tasks</span>
+            <span
+              className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
+                taskType === 'daily' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
+              }`}
+            >
+              {dailyCount}
+            </span>
           </button>
         </div>
 
@@ -147,10 +183,18 @@ export default function MyTasks() {
         <div className="card">
           <EmptyState
             icon={ListChecks}
-            title={taskType === 'daily' ? 'No daily tasks found' : 'No tasks match these filters'}
+            title={
+              taskType === 'daily'
+                ? 'No daily tasks found'
+                : taskType === 'regular'
+                ? 'No regular tasks found'
+                : 'No tasks match these filters'
+            }
             description={
               taskType === 'daily'
-                ? 'You can create a daily task using the "Create task" button above.'
+                ? 'You can create a daily task using the "+ Create task" button above.'
+                : taskType === 'regular'
+                ? 'You have no regular tasks right now. Any non-daily tasks will show up here.'
                 : 'Try adjusting your search or filters.'
             }
           />

@@ -77,6 +77,10 @@ export function applyTaskFilters(tasks, filters) {
     if (filters.priority && filters.priority !== 'all' && t.priority !== filters.priority) return false;
     if (filters.date && t.date !== filters.date) return false;
     if (filters.user && filters.user !== 'all' && t.assignedTo !== filters.user) return false;
+    if (filters.type && filters.type !== 'all') {
+      if (filters.type === 'daily' && !t.isDaily) return false;
+      if (filters.type === 'regular' && t.isDaily) return false;
+    }
     return true;
   });
 }

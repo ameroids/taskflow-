@@ -107,6 +107,9 @@ export async function addTask(task) {
       dailyGroupId: payload.dailyGroupId || `daily-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     };
     description = `${description}\n<!--TASKFLOW_DAILY:${JSON.stringify(meta)}-->`;
+  } else {
+    const meta = { isDaily: false };
+    description = `${description}\n<!--TASKFLOW_DAILY:${JSON.stringify(meta)}-->`;
   }
   payload.description = description;
 
@@ -194,8 +197,40 @@ export async function deleteTask(id) {
   return true;
 }
 
-export async function resetDemoData() {
+export async function clearAllTasks(deleteEmployees = false) {
+  // 1. Fetch all task ids to safely batch delete
+  const { data: allTasks, error: fetchErr } = await supabase.from('tasks').select('id');
+  if (fetchErr) throw new Error(fetchErr.message);
+
+  if (allTasks && allTasks.length > 0) {
+    const ids = allTasks.map((t) => t.id);
+    for (let i = 0; i < ids.length; i += 100) {
+      const chunk = ids.slice(i, i + 100);
+      const { error: delErr } = await supabase.from('tasks').delete().in('id', chunk);
+      if (delErr) throw new Error(delErr.message);
+    }
+  }
+
+  // 2. Optionally delete non-admin employee profiles
+  if (deleteEmployees) {
+    const { data: nonAdmins, error: userFetchErr } = await supabase
+      .from('users')
+      .select('id')
+      .neq('role', 'admin');
+    if (userFetchErr) throw new Error(userFetchErr.message);
+
+    if (nonAdmins && nonAdmins.length > 0) {
+      const uids = nonAdmins.map((u) => u.id);
+      const { error: userDelErr } = await supabase.from('users').delete().in('id', uids);
+      if (userDelErr) throw new Error(userDelErr.message);
+    }
+  }
+
   return true;
+}
+
+export async function resetDemoData() {
+  return clearAllTasks(false);
 }
 
 // Utility to convert snake_case back to camelCase for the frontend components
@@ -206,6 +241,7 @@ function toCamelCase(obj) {
   let dailyStatus = 'active';
   let dailyGroupId = null;
   let description = obj.description || '';
+  let hasExplicitDailyMeta = false;
 
   if (description) {
     const metaMatch = description.match(/<!--TASKFLOW_DAILY:(.*?)-->/);
@@ -216,6 +252,7 @@ function toCamelCase(obj) {
         dailyStatus = meta.dailyStatus || 'active';
         dailyGroupId = meta.dailyGroupId || null;
         description = description.replace(/<!--TASKFLOW_DAILY:.*?-->/g, '').trimEnd();
+        hasExplicitDailyMeta = true;
       } catch (e) {
         // Ignore parse error
       }
@@ -228,6 +265,7 @@ function toCamelCase(obj) {
     isDaily,
     dailyStatus,
     dailyGroupId,
+    hasExplicitDailyMeta,
     assignedTo: obj.assigned_to,
     assignedBy: obj.assigned_by,
     deadlineDate: obj.deadline_date,
