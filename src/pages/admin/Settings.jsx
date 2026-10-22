@@ -31,7 +31,7 @@ export default function AdminSettings() {
   const handleConfirmReset = async (e) => {
     e?.preventDefault();
     if (password !== FRESH_START_PASSWORD) {
-      setError('Incorrect password. You must enter ameroids786 to authorize this action.');
+      setError('Incorrect authorization password. Please try again.');
       return;
     }
 
@@ -174,9 +174,8 @@ export default function AdminSettings() {
           </div>
 
           <div>
-            <label className="label text-[13px] flex items-center justify-between">
-              <span>Enter administrator password to confirm:</span>
-              <span className="text-[11.5px] text-text-muted font-mono font-medium">ameroids786</span>
+            <label className="label text-[13px]">
+              Enter administrator password to confirm:
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
@@ -185,7 +184,7 @@ export default function AdminSettings() {
               <input
                 type={showPw ? 'text' : 'password'}
                 className="input pl-9 pr-10 font-mono tracking-wide"
-                placeholder="Enter password (ameroids786)"
+                placeholder="Enter administrator password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
