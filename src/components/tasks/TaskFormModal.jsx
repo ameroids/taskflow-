@@ -119,7 +119,7 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Assign to</label>
             {isEmployee ? (
@@ -145,7 +145,7 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="label">Task date</label>
             <input type="date" className="input" value={form.date} onChange={set('date')} />

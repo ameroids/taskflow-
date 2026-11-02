@@ -17,7 +17,7 @@ export default function UserSettings() {
         </div>
         <div className="mt-5">
           <label className="label">Username</label>
-          <input className="input max-w-xs" value={user?.username} disabled />
+          <input className="input max-w-full sm:max-w-xs" value={user?.username} disabled />
         </div>
         <p className="text-[11.5px] text-text-muted mt-3">
           Your profile details and credentials are securely managed by your administrator.

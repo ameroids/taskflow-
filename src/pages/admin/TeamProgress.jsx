@@ -47,10 +47,10 @@ export default function TeamProgress() {
           </button>
         ))}
         {range === 'custom' && (
-          <div className="flex items-center gap-2 ml-1">
-            <input type="date" className="input !w-auto" value={custom.start} onChange={(e) => setCustom((c) => ({ ...c, start: e.target.value }))} />
-            <span className="text-text-muted text-[12.5px]">to</span>
-            <input type="date" className="input !w-auto" value={custom.end} onChange={(e) => setCustom((c) => ({ ...c, end: e.target.value }))} />
+          <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0 sm:ml-1 w-full sm:w-auto">
+            <input type="date" className="input !w-full sm:!w-auto" value={custom.start} onChange={(e) => setCustom((c) => ({ ...c, start: e.target.value }))} />
+            <span className="text-text-muted text-[12.5px] mx-auto sm:mx-0">to</span>
+            <input type="date" className="input !w-full sm:!w-auto" value={custom.end} onChange={(e) => setCustom((c) => ({ ...c, end: e.target.value }))} />
           </div>
         )}
       </div>

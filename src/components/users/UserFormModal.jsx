@@ -66,7 +66,7 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Full name</label>
             <input className="input" placeholder="e.g. Divya Rao" value={form.name} onChange={set('name')} />
@@ -79,7 +79,7 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Username</label>
             <input className="input" placeholder="e.g. divya" value={form.username} onChange={set('username')} autoCapitalize="none" />
@@ -94,7 +94,7 @@ export default function UserFormModal({ open, onClose, onSubmit, initialUser, ex
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Role</label>
             <select className="input" value={form.role} onChange={set('role')}>

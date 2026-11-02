@@ -95,7 +95,7 @@ export default function UserDetail() {
         <ArrowLeft size={15} /> Back
       </button>
 
-      <div className="card p-5 flex flex-col sm:flex-row sm:items-center gap-5">
+      <div className="card p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         <div className="flex items-center gap-3">
           <Avatar name={user.name} color={user.color} size="lg" />
           <div>
@@ -107,13 +107,17 @@ export default function UserDetail() {
             </span>
           </div>
         </div>
-        <div className="flex-1" />
-        <ProgressRing value={stats.completionRate} sublabel="completion" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 sm:border-l sm:pl-6 border-border-soft">
-          <div><p className="text-[18px] font-semibold text-text-primary leading-none">{stats.total}</p><p className="text-[11.5px] text-text-muted mt-1">Total</p></div>
-          <div><p className="text-[18px] font-semibold text-success-600 leading-none">{stats.completed}</p><p className="text-[11.5px] text-text-muted mt-1">Completed</p></div>
-          <div><p className="text-[18px] font-semibold text-warning-600 leading-none">{stats.pending}</p><p className="text-[11.5px] text-text-muted mt-1">Pending</p></div>
-          <div><p className="text-[18px] font-semibold text-danger-600 leading-none">{stats.overdue}</p><p className="text-[11.5px] text-text-muted mt-1">Overdue</p></div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 border-t lg:border-t-0 lg:border-l border-border-soft pt-4 lg:pt-0 lg:pl-6">
+          <div className="flex items-center gap-3">
+            <ProgressRing value={stats.completionRate} sublabel="completion" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 w-full sm:w-auto">
+            <div><p className="text-[18px] font-semibold text-text-primary leading-none">{stats.total}</p><p className="text-[11.5px] text-text-muted mt-1">Total</p></div>
+            <div><p className="text-[18px] font-semibold text-success-600 leading-none">{stats.completed}</p><p className="text-[11.5px] text-text-muted mt-1">Completed</p></div>
+            <div><p className="text-[18px] font-semibold text-warning-600 leading-none">{stats.pending}</p><p className="text-[11.5px] text-text-muted mt-1">Pending</p></div>
+            <div><p className="text-[18px] font-semibold text-danger-600 leading-none">{stats.overdue}</p><p className="text-[11.5px] text-text-muted mt-1">Overdue</p></div>
+          </div>
         </div>
       </div>
 

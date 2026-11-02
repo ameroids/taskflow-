@@ -34,8 +34,8 @@ export default function AdminLayout() {
       <Sidebar items={NAV} open={open} onClose={() => setOpen(false)} brandSub="Admin workspace" />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar title={title} subtitle={subtitle} onMenu={() => setOpen(true)} />
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-          <div className="max-w-[1240px] mx-auto animate-fadeIn min-h-[calc(100vh-140px)] flex flex-col justify-between">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6">
+          <div className="max-w-[1240px] mx-auto animate-fadeIn min-h-[calc(100vh-120px)] sm:min-h-[calc(100vh-140px)] flex flex-col justify-between">
             <div>
               <Outlet />
             </div>

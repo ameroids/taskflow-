@@ -4,13 +4,15 @@ import { useData } from '../../context/DataContext';
 import { useToast } from '../../context/ToastContext';
 import Avatar from '../../components/ui/Avatar';
 import Modal from '../../components/ui/Modal';
-import { AlertTriangle, Trash2, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
+import UserFormModal from '../../components/users/UserFormModal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { AlertTriangle, Trash2, Lock, Eye, EyeOff, ShieldAlert, Plus, Pencil, Users as UsersIcon, Power } from 'lucide-react';
 
 const FRESH_START_PASSWORD = 'ameroids786';
 
 export default function AdminSettings() {
   const { user } = useAuth();
-  const { users, tasks, clearAllData } = useData();
+  const { users, tasks, clearAllData, addUser, editUser, removeUser } = useData();
   const { notify } = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,12 +22,53 @@ export default function AdminSettings() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // User management states in settings
+  const [userFormOpen, setUserFormOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [deleteTargetUser, setDeleteTargetUser] = useState(null);
+
   const handleOpenModal = () => {
     setPassword('');
     setShowPw(false);
     setDeleteEmployees(false);
     setError('');
     setModalOpen(true);
+  };
+
+  const handleUserSubmit = async (form) => {
+    try {
+      if (editingUser) {
+        await editUser(editingUser.id, form);
+        notify(`${form.name}'s details were updated.`, 'success', { title: 'User updated' });
+      } else {
+        await addUser(form);
+        notify(`${form.name} can now log in with the credentials you set.`, 'success', { title: 'User added' });
+      }
+      setUserFormOpen(false);
+      setEditingUser(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Action failed' });
+    }
+  };
+
+  const toggleUserStatus = async (u) => {
+    try {
+      const next = u.status === 'active' ? 'inactive' : 'active';
+      await editUser(u.id, { status: next });
+      notify(`${u.name} is now ${next}.`, next === 'active' ? 'success' : 'warning');
+    } catch (err) {
+      notify(err.message, 'error');
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    try {
+      await removeUser(deleteTargetUser.id);
+      notify(`${deleteTargetUser.name} was removed.`, 'success', { title: 'User deleted' });
+      setDeleteTargetUser(null);
+    } catch (err) {
+      notify(err.message, 'error', { title: 'Delete failed' });
+    }
   };
 
   const handleConfirmReset = async (e) => {
@@ -57,7 +100,7 @@ export default function AdminSettings() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-3xl">
       {/* Profile Card */}
       <div className="card p-5">
         <h3 className="text-[13.5px] font-semibold text-text-primary mb-4">Profile</h3>
@@ -70,11 +113,97 @@ export default function AdminSettings() {
         </div>
         <div className="mt-5">
           <label className="label">Username</label>
-          <input className="input max-w-xs" value={user?.username || ''} disabled />
+          <input className="input max-w-full sm:max-w-xs" value={user?.username || ''} disabled />
         </div>
         <p className="text-[11.5px] text-text-muted mt-3">
           Profile credentials and authentication are managed securely through Supabase Auth.
         </p>
+      </div>
+
+      {/* User Profiles & Team Management Card */}
+      <div className="card p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <UsersIcon size={16} className="text-brand-500" />
+              <h3 className="text-[14px] font-semibold text-text-primary">User Profiles & Accounts</h3>
+            </div>
+            <p className="text-[12.5px] text-text-secondary mt-0.5">
+              Create new user profiles, change usernames, names, roles, or edit existing credentials.
+            </p>
+          </div>
+          <button
+            className="btn-primary shrink-0 self-start sm:self-auto"
+            onClick={() => {
+              setEditingUser(null);
+              setUserFormOpen(true);
+            }}
+          >
+            <Plus size={15} /> Add user
+          </button>
+        </div>
+
+        <div className="border border-border rounded-lg divide-y divide-border-soft overflow-hidden">
+          {users.map((u) => (
+            <div key={u.id} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface hover:bg-canvas/50 transition-colors">
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar name={u.name} color={u.color} size="md" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13.5px] font-medium text-text-primary truncate">{u.name}</p>
+                    <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-canvas border border-border text-text-secondary shrink-0">
+                      @{u.username}
+                    </span>
+                    {u.role === 'admin' ? (
+                      <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-500/20 shrink-0">
+                        Admin
+                      </span>
+                    ) : (
+                      <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-surface border border-border text-text-muted shrink-0 capitalize">
+                        {u.role}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[12px] text-text-muted truncate mt-0.5">
+                    {u.title || 'No title set'} · <span className={u.status === 'active' ? 'text-success-600 font-medium' : 'text-text-muted'}>{u.status === 'active' ? 'Active' : 'Inactive'}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                <button
+                  className="btn-secondary text-[12px] px-2.5 py-1.5"
+                  onClick={() => {
+                    setEditingUser(u);
+                    setUserFormOpen(true);
+                  }}
+                  title="Edit user profile & credentials"
+                >
+                  <Pencil size={13} /> Edit
+                </button>
+                {u.role !== 'admin' && (
+                  <>
+                    <button
+                      className="btn-secondary text-[12px] px-2.5 py-1.5 text-text-secondary hover:text-text-primary"
+                      onClick={() => toggleUserStatus(u)}
+                      title={u.status === 'active' ? 'Deactivate user' : 'Activate user'}
+                    >
+                      <Power size={13} className={u.status === 'active' ? 'text-success-600' : 'text-text-muted'} />
+                      <span className="hidden xs:inline">{u.status === 'active' ? 'Deactivate' : 'Activate'}</span>
+                    </button>
+                    <button
+                      className="btn-ghost text-[12px] px-2 py-1.5 text-danger-600 hover:bg-danger-50"
+                      onClick={() => setDeleteTargetUser(u)}
+                      title="Delete user"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Danger Zone / Fresh Start Card */}
@@ -208,6 +337,26 @@ export default function AdminSettings() {
           </div>
         </form>
       </Modal>
+
+      <UserFormModal
+        open={userFormOpen}
+        onClose={() => {
+          setUserFormOpen(false);
+          setEditingUser(null);
+        }}
+        onSubmit={handleUserSubmit}
+        initialUser={editingUser}
+        existingUsernames={users.map((u) => u.username)}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTargetUser}
+        onClose={() => setDeleteTargetUser(null)}
+        onConfirm={handleDeleteUser}
+        title="Delete this user?"
+        description={`${deleteTargetUser?.name} will be permanently removed. Their tasks will remain in history but will no longer be assigned to anyone.`}
+        confirmLabel="Delete user"
+      />
     </div>
   );
 }

@@ -30,12 +30,12 @@ export default function Topbar({ title, subtitle, onMenu, actions }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {actions}
         
-        <div className="hidden sm:flex bg-canvas rounded-lg p-0.5 border border-border">
+        <div className="flex bg-canvas rounded-lg p-0.5 border border-border">
           <button title="Light Mode" onClick={() => setTheme('light')} className={`p-1.5 rounded-md transition-colors ${theme === 'light' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Sun size={13}/></button>
-          <button title="System Default" onClick={() => setTheme('system')} className={`p-1.5 rounded-md transition-colors ${theme === 'system' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Monitor size={13}/></button>
+          <button title="System Default" onClick={() => setTheme('system')} className={`hidden xs:inline-flex p-1.5 rounded-md transition-colors ${theme === 'system' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Monitor size={13}/></button>
           <button title="Dark Mode" onClick={() => setTheme('dark')} className={`p-1.5 rounded-md transition-colors ${theme === 'dark' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Moon size={13}/></button>
         </div>
 

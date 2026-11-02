@@ -112,9 +112,9 @@ export default function MyTasks() {
   return (
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex bg-canvas p-1 rounded-lg border border-border w-fit items-center gap-1">
+        <div className="flex bg-canvas p-1 rounded-lg border border-border w-full sm:w-fit items-center gap-1 overflow-x-auto">
           <button
-            className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+            className={`flex-1 sm:flex-initial justify-center px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 whitespace-nowrap ${
               taskType === 'all'
                 ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
                 : 'text-text-secondary hover:text-text-primary font-medium'
@@ -131,14 +131,14 @@ export default function MyTasks() {
             </span>
           </button>
           <button
-            className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+            className={`flex-1 sm:flex-initial justify-center px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 whitespace-nowrap ${
               taskType === 'regular'
                 ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
                 : 'text-text-secondary hover:text-text-primary font-medium'
             }`}
             onClick={() => setTaskType('regular')}
           >
-            <span>Regular Tasks</span>
+            <span>Regular</span>
             <span
               className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
                 taskType === 'regular' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
@@ -148,14 +148,14 @@ export default function MyTasks() {
             </span>
           </button>
           <button
-            className={`px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 ${
+            className={`flex-1 sm:flex-initial justify-center px-3.5 py-1.5 text-[13px] rounded-md transition-all flex items-center gap-1.5 whitespace-nowrap ${
               taskType === 'daily'
                 ? 'bg-surface text-text-primary font-semibold shadow-sm border border-border/70'
                 : 'text-text-secondary hover:text-text-primary font-medium'
             }`}
             onClick={() => setTaskType('daily')}
           >
-            <span>Daily Tasks</span>
+            <span>Daily</span>
             <span
               className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${
                 taskType === 'daily' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'

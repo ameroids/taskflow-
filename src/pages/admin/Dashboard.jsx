@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3">
         <StatCard label="Team members" value={activeUsers.length} icon={Users} tone="brand" onClick={() => navigate('/admin/users')} />
         <StatCard label="Total tasks" value={stats.total} icon={ListChecks} onClick={() => navigate('/admin/tasks')} />
         <StatCard label="Completed" value={stats.completed} icon={CheckCircle2} tone="success" />

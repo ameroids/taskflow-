@@ -5,8 +5,8 @@ export default function TaskFilters({ filters, setFilters, users, showUserFilter
   const update = (key) => (e) => setFilters((f) => ({ ...f, [key]: e.target.value }));
 
   return (
-    <div className="flex flex-col sm:flex-row flex-wrap gap-2.5">
-      <div className="relative flex-1 min-w-[180px]">
+    <div className="grid grid-cols-1 sm:flex sm:flex-row sm:flex-wrap gap-2.5 w-full">
+      <div className="relative w-full sm:flex-1 sm:min-w-[180px]">
         <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
         <input
           className="input pl-8"
@@ -15,28 +15,30 @@ export default function TaskFilters({ filters, setFilters, users, showUserFilter
           onChange={update('search')}
         />
       </div>
-      {showUserFilter && (
-        <select className="input sm:w-44" value={filters.user} onChange={update('user')}>
-          <option value="all">All team members</option>
-          {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 w-full sm:w-auto">
+        {showUserFilter && (
+          <select className="input col-span-2 sm:col-span-1 sm:w-44" value={filters.user} onChange={update('user')}>
+            <option value="all">All team members</option>
+            {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+          </select>
+        )}
+        {showTypeFilter && (
+          <select className="input sm:w-36" value={filters.type || 'all'} onChange={update('type')}>
+            <option value="all">All types</option>
+            <option value="regular">Regular tasks</option>
+            <option value="daily">Daily tasks</option>
+          </select>
+        )}
+        <select className="input sm:w-40" value={filters.status} onChange={update('status')}>
+          <option value="all">All statuses</option>
+          {DISPLAY_STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
-      )}
-      {showTypeFilter && (
-        <select className="input sm:w-36" value={filters.type || 'all'} onChange={update('type')}>
-          <option value="all">All types</option>
-          <option value="regular">Regular tasks</option>
-          <option value="daily">Daily tasks</option>
+        <select className="input sm:w-36" value={filters.priority} onChange={update('priority')}>
+          <option value="all">All priorities</option>
+          {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
-      )}
-      <select className="input sm:w-40" value={filters.status} onChange={update('status')}>
-        <option value="all">All statuses</option>
-        {DISPLAY_STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-      </select>
-      <select className="input sm:w-36" value={filters.priority} onChange={update('priority')}>
-        <option value="all">All priorities</option>
-        {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-      </select>
-      <input type="date" className="input sm:w-40" value={filters.date} onChange={update('date')} />
+        <input type="date" className="input col-span-2 sm:col-span-1 sm:w-40" value={filters.date} onChange={update('date')} />
+      </div>
     </div>
   );
 }
