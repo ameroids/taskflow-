@@ -34,8 +34,8 @@ class MainActivity : AppCompatActivity() {
             javaScriptEnabled = true
             domStorageEnabled = true
             databaseEnabled = true
-            loadWithOverviewMode = true
-            useWideViewPort = true
+            loadWithOverviewMode = false
+            useWideViewPort = false
             cacheMode = WebSettings.LOAD_DEFAULT
             javaScriptCanOpenWindowsAutomatically = true
             setSupportMultipleWindows(false)

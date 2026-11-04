@@ -35,8 +35,8 @@ export default function TaskHistory() {
         {filtered.length === 0 ? (
           <EmptyState icon={History} title="No task history yet" description="Completed and updated tasks will show up here." />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] text-left">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full min-w-[700px] sm:min-w-[820px] text-left">
               <thead>
                 <tr className="text-[11.5px] uppercase tracking-wide text-text-muted border-b border-border">
                   <th className="font-medium px-4 py-2.5">Task</th>

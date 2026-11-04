@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3">
         <StatCard label="Team members" value={activeUsers.length} icon={Users} tone="brand" onClick={() => navigate('/admin/users')} />
         <StatCard label="Total tasks" value={stats.total} icon={ListChecks} onClick={() => navigate('/admin/tasks')} />
         <StatCard label="Completed" value={stats.completed} icon={CheckCircle2} tone="success" />
@@ -37,16 +37,16 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div className="xl:col-span-2 card p-5">
+        <div className="xl:col-span-2 card p-3.5 sm:p-5 overflow-hidden">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[13.5px] font-semibold text-text-primary">Team performance</h3>
-            <button onClick={() => navigate('/admin/team-progress')} className="text-[12px] font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+            <button onClick={() => navigate('/admin/team-progress')} className="text-[12px] font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1 shrink-0">
               Full report <ArrowUpRight size={13} />
             </button>
           </div>
-          <p className="text-[12.5px] text-text-secondary mb-3">Click a member to see their task history.</p>
-          <div className="overflow-x-auto -mx-2">
-            <table className="w-full min-w-[560px]">
+          <p className="text-[12px] sm:text-[12.5px] text-text-secondary mb-3">Click a member to see their task history.</p>
+          <div className="overflow-x-auto -mx-3.5 sm:-mx-2 px-3.5 sm:px-2 scrollbar-thin">
+            <table className="w-full min-w-[520px]">
               <thead>
                 <tr className="text-[11px] uppercase tracking-wide text-text-muted">
                   <th className="text-left font-medium px-2 py-2">User</th>
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
                   <th className="text-right font-medium px-2 py-2">Completed</th>
                   <th className="text-right font-medium px-2 py-2">Pending</th>
                   <th className="text-right font-medium px-2 py-2">Overdue</th>
-                  <th className="text-right font-medium px-2 py-2 w-32">Completion</th>
+                  <th className="text-right font-medium px-2 py-2 w-28 sm:w-32">Completion</th>
                 </tr>
               </thead>
               <tbody>
@@ -67,20 +67,20 @@ export default function AdminDashboard() {
                     <td className="px-2 py-2.5">
                       <div className="flex items-center gap-2">
                         <Avatar name={user.name} color={user.color} size="sm" />
-                        <div className="leading-tight">
-                          <p className="text-[13px] font-medium text-text-primary">{user.name}</p>
-                          <p className="text-[11px] text-text-muted">{user.title}</p>
+                        <div className="leading-tight min-w-0">
+                          <p className="text-[13px] font-medium text-text-primary truncate">{user.name}</p>
+                          <p className="text-[11px] text-text-muted truncate">{user.title}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-2 py-2.5 text-right text-[13px] text-text-secondary">{s.total}</td>
-                    <td className="px-2 py-2.5 text-right text-[13px] text-success-600">{s.completed}</td>
-                    <td className="px-2 py-2.5 text-right text-[13px] text-warning-600">{s.pending}</td>
-                    <td className="px-2 py-2.5 text-right text-[13px] text-danger-600">{s.overdue}</td>
+                    <td className="px-2 py-2.5 text-right text-[13px] text-success-600 font-medium">{s.completed}</td>
+                    <td className="px-2 py-2.5 text-right text-[13px] text-warning-600 font-medium">{s.pending}</td>
+                    <td className="px-2 py-2.5 text-right text-[13px] text-danger-600 font-medium">{s.overdue}</td>
                     <td className="px-2 py-2.5">
-                      <div className="flex items-center gap-2 justify-end">
-                        <span className="text-[12.5px] font-medium text-text-primary w-9 text-right">{s.completionRate}%</span>
-                        <ProgressBar value={s.completionRate} className="w-16" />
+                      <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
+                        <span className="text-[12px] sm:text-[12.5px] font-medium text-text-primary w-8 sm:w-9 text-right">{s.completionRate}%</span>
+                        <ProgressBar value={s.completionRate} className="w-12 sm:w-16" />
                       </div>
                     </td>
                   </tr>
@@ -91,12 +91,12 @@ export default function AdminDashboard() {
         </div>
 
         <div className="space-y-4">
-          <div className="card p-5">
+          <div className="card p-4 sm:p-5">
             <h3 className="text-[13.5px] font-semibold text-text-primary mb-1">Overall completion</h3>
-            <p className="text-[12.5px] text-text-secondary mb-4">Across all tasks ever assigned.</p>
+            <p className="text-[12px] sm:text-[12.5px] text-text-secondary mb-3 sm:mb-4">Across all tasks ever assigned.</p>
             <StackedBar stats={stats} />
           </div>
-          <div className="card p-5">
+          <div className="card p-4 sm:p-5">
             <h3 className="text-[13.5px] font-semibold text-text-primary mb-1">Today</h3>
             <p className="text-[12.5px] text-text-secondary mb-4">
               {todayStats.completed} of {todayStats.total} tasks completed — {todayStats.completionRate}%

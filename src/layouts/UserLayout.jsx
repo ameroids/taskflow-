@@ -28,12 +28,12 @@ export default function UserLayout() {
   const [title, subtitle] = TITLES[key];
 
   return (
-    <div className="flex h-screen bg-canvas overflow-hidden">
+    <div className="flex h-[100dvh] bg-canvas overflow-hidden w-full">
       <Sidebar items={NAV} open={open} onClose={() => setOpen(false)} brandSub="Employee workspace" />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-hidden">
         <Topbar title={title} subtitle={subtitle} onMenu={() => setOpen(true)} />
-        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6">
-          <div className="max-w-[1100px] mx-auto animate-fadeIn min-h-[calc(100vh-120px)] sm:min-h-[calc(100vh-140px)] flex flex-col justify-between">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-3.5 sm:py-6 overscroll-contain">
+          <div className="max-w-[1100px] mx-auto animate-fadeIn min-h-[calc(100dvh-120px)] sm:min-h-[calc(100dvh-140px)] flex flex-col justify-between">
             <div>
               <Outlet />
             </div>

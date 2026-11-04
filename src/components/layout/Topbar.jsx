@@ -19,28 +19,32 @@ export default function Topbar({ title, subtitle, onMenu, actions }) {
   }, []);
 
   return (
-    <header className="h-14 shrink-0 border-b border-border bg-surface/90 backdrop-blur flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
-      <div className="flex items-center gap-3 min-w-0">
-        <button className="lg:hidden text-text-secondary hover:text-text-primary" onClick={onMenu}>
-          <Menu size={19} />
+    <header className="h-14 shrink-0 border-b border-border bg-surface/90 backdrop-blur flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-20">
+      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+        <button
+          className="lg:hidden p-1 -ml-1 text-text-secondary hover:text-text-primary rounded-md active:bg-canvas shrink-0"
+          onClick={onMenu}
+          aria-label="Open navigation menu"
+        >
+          <Menu size={20} />
         </button>
         <div className="min-w-0">
-          <h1 className="text-[15px] font-semibold text-text-primary truncate leading-tight">{title}</h1>
-          {subtitle && <p className="text-[12px] text-text-secondary truncate">{subtitle}</p>}
+          <h1 className="text-[14.5px] sm:text-[15px] font-semibold text-text-primary truncate leading-tight">{title}</h1>
+          {subtitle && <p className="text-[11px] sm:text-[12px] text-text-secondary truncate mt-0.5">{subtitle}</p>}
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {actions}
         
-        <div className="flex bg-canvas rounded-lg p-0.5 border border-border">
+        <div className="flex bg-canvas rounded-lg p-0.5 border border-border shrink-0">
           <button title="Light Mode" onClick={() => setTheme('light')} className={`p-1.5 rounded-md transition-colors ${theme === 'light' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Sun size={13}/></button>
-          <button title="System Default" onClick={() => setTheme('system')} className={`hidden xs:inline-flex p-1.5 rounded-md transition-colors ${theme === 'system' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Monitor size={13}/></button>
+          <button title="System Default" onClick={() => setTheme('system')} className={`hidden sm:inline-flex p-1.5 rounded-md transition-colors ${theme === 'system' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Monitor size={13}/></button>
           <button title="Dark Mode" onClick={() => setTheme('dark')} className={`p-1.5 rounded-md transition-colors ${theme === 'dark' ? 'bg-surface shadow-sm text-text-primary' : 'text-text-muted hover:text-text-primary'}`}><Moon size={13}/></button>
         </div>
 
-        <div className="relative" ref={ref}>
-          <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-canvas">
+        <div className="relative shrink-0" ref={ref}>
+          <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 sm:gap-2 pl-1 pr-1.5 sm:pr-2 py-1 rounded-lg hover:bg-canvas">
             <Avatar name={user?.name} color={user?.color} size="sm" />
             <span className="hidden sm:block text-left leading-tight">
               <span className="block text-[12.5px] font-medium text-text-primary">{user?.name}</span>

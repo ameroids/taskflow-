@@ -68,16 +68,16 @@ export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete
   }
 
   return (
-    <div className="overflow-x-auto -mx-4 sm:mx-0">
-      <table className="w-full min-w-[760px] text-left">
+    <div className="overflow-x-auto -mx-2 sm:mx-0 px-2 sm:px-0 scrollbar-thin">
+      <table className="w-full min-w-[680px] text-left">
         <thead>
-          <tr className="text-[11.5px] uppercase tracking-wide text-text-muted border-b border-border">
-            <th className="font-medium px-4 sm:px-3 py-2.5">Task</th>
-            {showUser && <th className="font-medium px-3 py-2.5">Assigned to</th>}
-            <th className="font-medium px-3 py-2.5">Deadline</th>
-            <th className="font-medium px-3 py-2.5">Priority</th>
-            <th className="font-medium px-3 py-2.5">Status</th>
-            <th className="font-medium px-3 py-2.5 w-10"></th>
+          <tr className="text-[11px] sm:text-[11.5px] uppercase tracking-wide text-text-muted border-b border-border">
+            <th className="font-medium px-3 sm:px-3 py-2.5">Task</th>
+            {showUser && <th className="font-medium px-2.5 sm:px-3 py-2.5">Assigned to</th>}
+            <th className="font-medium px-2.5 sm:px-3 py-2.5">Deadline</th>
+            <th className="font-medium px-2.5 sm:px-3 py-2.5">Priority</th>
+            <th className="font-medium px-2.5 sm:px-3 py-2.5">Status</th>
+            <th className="font-medium px-2 py-2.5 w-10"></th>
           </tr>
         </thead>
         <tbody>
@@ -90,9 +90,9 @@ export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete
                 onClick={() => onRowClick(t)}
                 className="border-b border-border-soft last:border-0 hover:bg-canvas/70 cursor-pointer transition-colors"
               >
-                <td className="px-4 sm:px-3 py-3 max-w-[280px]">
-                  <div className="flex items-center gap-2">
-                    <p className="text-[13.5px] font-medium text-text-primary truncate">{t.title}</p>
+                <td className="px-3 sm:px-3 py-3 max-w-[240px] sm:max-w-[280px]">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <p className="text-[13px] sm:text-[13.5px] font-medium text-text-primary truncate">{t.title}</p>
                     {t.isDaily && (
                       <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
                         t.dailyStatus === 'stopped'
@@ -103,25 +103,25 @@ export default function TaskTable({ tasks, getUser, onRowClick, onEdit, onDelete
                       </span>
                     )}
                   </div>
-                  <p className="text-[12px] text-text-muted truncate">{t.description}</p>
+                  <p className="text-[11.5px] sm:text-[12px] text-text-muted truncate">{t.description}</p>
                 </td>
                 {showUser && (
-                  <td className="px-3 py-3">
+                  <td className="px-2.5 sm:px-3 py-3">
                     {user ? (
                       <div className="flex items-center gap-2">
                         <Avatar name={user.name} color={user.color} size="sm" />
-                        <span className="text-[13px] text-text-secondary whitespace-nowrap">{user.name}</span>
+                        <span className="text-[12.5px] sm:text-[13px] text-text-secondary whitespace-nowrap">{user.name}</span>
                       </div>
-                    ) : <span className="text-text-muted text-[12.5px]">Unassigned</span>}
+                    ) : <span className="text-text-muted text-[12px]">Unassigned</span>}
                   </td>
                 )}
-                <td className="px-3 py-3 whitespace-nowrap">
-                  <p className="text-[13px] text-text-secondary">{formatDateShort(t.deadlineDate)}</p>
-                  <p className="text-[11.5px] text-text-muted">{formatTime(t.deadlineTime)}</p>
+                <td className="px-2.5 sm:px-3 py-3 whitespace-nowrap">
+                  <p className="text-[12.5px] sm:text-[13px] text-text-secondary">{formatDateShort(t.deadlineDate)}</p>
+                  <p className="text-[11px] sm:text-[11.5px] text-text-muted">{formatTime(t.deadlineTime)}</p>
                 </td>
-                <td className="px-3 py-3"><PriorityBadge priority={t.priority} size="sm" /></td>
-                <td className="px-3 py-3"><StatusBadge status={status} size="sm" /></td>
-                <td className="px-3 py-3">
+                <td className="px-2.5 sm:px-3 py-3"><PriorityBadge priority={t.priority} size="sm" /></td>
+                <td className="px-2.5 sm:px-3 py-3"><StatusBadge status={status} size="sm" /></td>
+                <td className="px-2 py-3">
                   {(onEdit || onDelete || onExtend || onStopDaily || onResumeDaily) && (
                     <RowMenu
                       task={t}

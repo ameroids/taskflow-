@@ -145,32 +145,32 @@ export default function AdminSettings() {
 
         <div className="border border-border rounded-lg divide-y divide-border-soft overflow-hidden">
           {users.map((u) => (
-            <div key={u.id} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface hover:bg-canvas/50 transition-colors">
-              <div className="flex items-center gap-3 min-w-0">
+            <div key={u.id} className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface hover:bg-canvas/50 transition-colors">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <Avatar name={u.name} color={u.color} size="md" />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-[13.5px] font-medium text-text-primary truncate">{u.name}</p>
-                    <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-canvas border border-border text-text-secondary shrink-0">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <p className="text-[13px] sm:text-[13.5px] font-medium text-text-primary truncate">{u.name}</p>
+                    <span className="text-[10.5px] sm:text-[11px] font-mono px-1.5 py-0.5 rounded bg-canvas border border-border text-text-secondary shrink-0">
                       @{u.username}
                     </span>
                     {u.role === 'admin' ? (
-                      <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-500/20 shrink-0">
+                      <span className="text-[10px] sm:text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-500/20 shrink-0">
                         Admin
                       </span>
                     ) : (
-                      <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-surface border border-border text-text-muted shrink-0 capitalize">
+                      <span className="text-[10px] sm:text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-surface border border-border text-text-muted shrink-0 capitalize">
                         {u.role}
                       </span>
                     )}
                   </div>
-                  <p className="text-[12px] text-text-muted truncate mt-0.5">
+                  <p className="text-[11.5px] sm:text-[12px] text-text-muted truncate mt-0.5">
                     {u.title || 'No title set'} · <span className={u.status === 'active' ? 'text-success-600 font-medium' : 'text-text-muted'}>{u.status === 'active' ? 'Active' : 'Inactive'}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-border-soft/60 w-full sm:w-auto justify-end">
                 <button
                   className="btn-secondary text-[12px] px-2.5 py-1.5"
                   onClick={() => {

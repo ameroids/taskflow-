@@ -110,8 +110,8 @@ export default function AdminUsers() {
         {filtered.length === 0 ? (
           <EmptyState icon={UsersIcon} title="No users found" description="Try a different search, or add a new team member." />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full min-w-[620px] sm:min-w-[720px] text-left">
               <thead>
                 <tr className="text-[11.5px] uppercase tracking-wide text-text-muted border-b border-border">
                   <th className="font-medium px-4 py-2.5">Name</th>
