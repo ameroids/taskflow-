@@ -16,7 +16,7 @@ const emptyForm = {
 
 export default function TaskFormModal({ open, onClose, onSubmit, users, initialTask, currentUser }) {
   const [form, setForm] = useState(emptyForm);
-  const [isDaily, setIsDaily] = useState(false);
+  const [isOneTime, setIsOneTime] = useState(false);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -34,13 +34,14 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
           deadlineTime: initialTask.deadlineTime,
           priority: initialTask.priority,
         });
-        setIsDaily(!!initialTask.isDaily);
+        setIsOneTime(initialTask.isDaily === false);
       } else {
         const defaultAssignee = isEmployee
           ? currentUser.id
           : users?.[0]?.id || '';
         setForm({ ...emptyForm, assignedTo: defaultAssignee });
-        setIsDaily(false);
+        // By default, tasks are daily. If checkbox is checked, it becomes a one-time task.
+        setIsOneTime(false);
       }
       setErrors({});
     }
@@ -63,7 +64,7 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
     e.preventDefault();
     if (!validate()) return;
     setSaving(true);
-    await onSubmit({ ...form, isDaily });
+    await onSubmit({ ...form, isDaily: !isOneTime });
     setSaving(false);
   };
 
@@ -169,15 +170,15 @@ export default function TaskFormModal({ open, onClose, onSubmit, users, initialT
               <input
                 type="checkbox"
                 className="rounded border-border text-brand-500 focus:ring-brand-500 mt-0.5 h-4 w-4"
-                checked={isDaily}
-                onChange={(e) => setIsDaily(e.target.checked)}
+                checked={isOneTime}
+                onChange={(e) => setIsOneTime(e.target.checked)}
               />
               <div>
                 <span className="text-[13.5px] text-text-primary font-medium block">
-                  Daily task (repeats daily until stopped)
+                  One-time task (does not repeat daily)
                 </span>
                 <span className="text-[12px] text-text-secondary block mt-0.5">
-                  This task will appear for the user every day until stopped.
+                  By default, tasks repeat daily until stopped. Check this box if this task is for one time only.
                 </span>
               </div>
             </label>

@@ -8,7 +8,7 @@ import TaskDetailModal from '../../components/tasks/TaskDetailModal';
 import TaskFormModal from '../../components/tasks/TaskFormModal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import EmptyState from '../../components/ui/EmptyState';
-import { applyTaskFilters, sortTasksByUrgency } from '../../utils/taskUtils';
+import { applyTaskFilters, sortTasksByUrgency, groupUniqueTasks } from '../../utils/taskUtils';
 import { ListChecks, Plus } from 'lucide-react';
 
 export default function MyTasks() {
@@ -25,14 +25,19 @@ export default function MyTasks() {
   const [taskType, setTaskType] = useState('all'); // 'all' | 'regular' | 'daily'
 
   const userTasks = useMemo(() => tasks.filter((t) => t.assignedTo === user.id), [tasks, user.id]);
-  const regularCount = useMemo(() => userTasks.filter((t) => !t.isDaily).length, [userTasks]);
-  const dailyCount = useMemo(() => userTasks.filter((t) => t.isDaily).length, [userTasks]);
+
+  // Collapse repeated daily tasks to single unique entries
+  const uniqueUserTasks = useMemo(() => groupUniqueTasks(userTasks), [userTasks]);
+
+  const regularCount = useMemo(() => uniqueUserTasks.filter((t) => !t.isDaily).length, [uniqueUserTasks]);
+  const dailyCount = useMemo(() => uniqueUserTasks.filter((t) => t.isDaily).length, [uniqueUserTasks]);
 
   const myTasks = useMemo(() => {
-    if (taskType === 'regular') return userTasks.filter((t) => !t.isDaily);
-    if (taskType === 'daily') return userTasks.filter((t) => t.isDaily);
-    return userTasks;
-  }, [userTasks, taskType]);
+    if (taskType === 'regular') return uniqueUserTasks.filter((t) => !t.isDaily);
+    if (taskType === 'daily') return uniqueUserTasks.filter((t) => t.isDaily);
+    return uniqueUserTasks;
+  }, [uniqueUserTasks, taskType]);
+
   const filtered = useMemo(() => sortTasksByUrgency(applyTaskFilters(myTasks, filters)), [myTasks, filters]);
 
   const handleCreate = async (form) => {
@@ -127,7 +132,7 @@ export default function MyTasks() {
                 taskType === 'all' ? 'bg-canvas text-text-primary' : 'bg-surface/80 text-text-muted'
               }`}
             >
-              {userTasks.length}
+              {uniqueUserTasks.length}
             </span>
           </button>
           <button

@@ -7,7 +7,7 @@ import TaskFormModal from '../../components/tasks/TaskFormModal';
 import TaskDetailModal from '../../components/tasks/TaskDetailModal';
 import ExtendDeadlineModal from '../../components/tasks/ExtendDeadlineModal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { applyTaskFilters } from '../../utils/taskUtils';
+import { applyTaskFilters, groupUniqueTasks } from '../../utils/taskUtils';
 import { addDaysISO, combineDateTime } from '../../utils/dateUtils';
 import { Plus } from 'lucide-react';
 
@@ -22,7 +22,9 @@ export default function AdminTasks() {
   const [activeTask, setActiveTask] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const filtered = useMemo(() => applyTaskFilters(tasks, filters), [tasks, filters]);
+  // Group recurring/daily tasks so distinct tasks are displayed as unique entries with a dropdown
+  const uniqueTasks = useMemo(() => groupUniqueTasks(tasks), [tasks]);
+  const filtered = useMemo(() => applyTaskFilters(uniqueTasks, filters), [uniqueTasks, filters]);
 
   const handleCreate = async (form) => {
     try {

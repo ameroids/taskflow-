@@ -1,19 +1,18 @@
 import { isPastDeadline, isSameDay, isWithinDays } from './dateUtils';
 
 // Canonical statuses stored on a task: 'pending' | 'completed' | 'not_completed'
-// Derived display status adds 'overdue' when a pending task's deadline has passed.
+// If a task passes its deadline without being completed, it is marked as 'not_completed' (Not done)
 export function getDerivedStatus(task) {
   if (task.status === 'completed') return 'completed';
   if (task.status === 'not_completed') return 'not_completed';
-  if (isPastDeadline(task.deadlineDate, task.deadlineTime)) return 'overdue';
+  if (isPastDeadline(task.deadlineDate, task.deadlineTime)) return 'not_completed';
   return 'pending';
 }
 
 export const STATUS_META = {
   completed: { label: 'Completed', dot: 'bg-success-500', badge: 'bg-success-50 text-success-600', text: 'text-success-600' },
   pending: { label: 'Pending', dot: 'bg-amber-400', badge: 'bg-warning-50 text-warning-600', text: 'text-warning-600' },
-  overdue: { label: 'Overdue', dot: 'bg-danger-500', badge: 'bg-danger-50 text-danger-600', text: 'text-danger-600' },
-  not_completed: { label: 'Not completed', dot: 'bg-text-muted', badge: 'bg-canvas text-text-secondary', text: 'text-text-secondary' },
+  not_completed: { label: 'Not done', dot: 'bg-danger-500', badge: 'bg-danger-50 text-danger-600', text: 'text-danger-600' },
 };
 
 export const PRIORITY_META = {
@@ -22,18 +21,36 @@ export const PRIORITY_META = {
   Low: { badge: 'bg-brand-50 text-brand-600', dot: 'bg-brand-500' },
 };
 
+// Compute statistics for unique tasks (e.g. "Site visits" = 1 task).
+// A unique task's status is derived from its latest active run (e.g. today).
 export function computeStats(tasks) {
-  const total = tasks.length;
-  let completed = 0, pending = 0, overdue = 0, notCompleted = 0;
-  for (const t of tasks) {
+  const uniqueList = groupUniqueTasks(tasks);
+  const total = uniqueList.length;
+  let completed = 0, pending = 0, notCompleted = 0;
+
+  for (const t of uniqueList) {
     const s = getDerivedStatus(t);
     if (s === 'completed') completed++;
-    else if (s === 'overdue') overdue++;
     else if (s === 'not_completed') notCompleted++;
     else pending++;
   }
   const completionRate = total ? Math.round((completed / total) * 100) : 0;
-  return { total, completed, pending, overdue, notCompleted, completionRate };
+  return { total, completed, pending, overdue: notCompleted, notCompleted, completionRate };
+}
+
+// Compute statistics across all historical task logs/runs (all day instances)
+export function computeAllRunsStats(tasks) {
+  const total = tasks.length;
+  let completed = 0, pending = 0, notCompleted = 0;
+
+  for (const t of tasks) {
+    const s = getDerivedStatus(t);
+    if (s === 'completed') completed++;
+    else if (s === 'not_completed') notCompleted++;
+    else pending++;
+  }
+  const completionRate = total ? Math.round((completed / total) * 100) : 0;
+  return { total, completed, pending, overdue: notCompleted, notCompleted, completionRate };
 }
 
 export function computeTodayStats(tasks) {
@@ -62,9 +79,8 @@ export const STORED_STATUS_OPTIONS = [
 ];
 export const DISPLAY_STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
   { value: 'completed', label: 'Completed' },
-  { value: 'not_completed', label: 'Not completed' },
+  { value: 'not_completed', label: 'Not done' },
 ];
 
 export function applyTaskFilters(tasks, filters) {
@@ -85,11 +101,58 @@ export function applyTaskFilters(tasks, filters) {
   });
 }
 
+// Group recurring/daily tasks so each distinct task appears as a single unique entry,
+// keeping track of all historical/daily run instances in `history`.
+export function groupUniqueTasks(tasks) {
+  const groups = new Map();
+
+  for (const t of tasks) {
+    // Unique key: for daily tasks, group by user + title (or dailyGroupId if present);
+    // for non-daily regular tasks, each task is its own unique entry.
+    const isDaily = !!t.isDaily;
+    const groupKey = isDaily
+      ? (t.dailyGroupId || `${t.assignedTo}::${(t.title || '').toLowerCase().trim()}`)
+      : `single::${t.id}`;
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, {
+        ...t,
+        isDaily,
+        instances: [t],
+      });
+    } else {
+      const existing = groups.get(groupKey);
+      existing.instances.push(t);
+      // Pick the most recent instance (by date/deadline) to represent the main entry
+      const existingTime = (existing.date || '') + (existing.deadlineTime || '');
+      const currentTime = (t.date || '') + (t.deadlineTime || '');
+      if (currentTime >= existingTime) {
+        // Keep accumulated instances, update representative task fields
+        const allInstances = existing.instances;
+        Object.assign(existing, t);
+        existing.instances = allInstances;
+        existing.isDaily = true;
+      }
+    }
+  }
+
+  // Sort each group's instances from newest to oldest
+  for (const group of groups.values()) {
+    group.instances.sort((a, b) => {
+      const ta = (a.date || '') + (a.deadlineTime || '');
+      const tb = (b.date || '') + (b.deadlineTime || '');
+      return tb.localeCompare(ta);
+    });
+  }
+
+  return Array.from(groups.values());
+}
+
 export function sortTasksByUrgency(tasks) {
-  const rank = { overdue: 0, pending: 1, not_completed: 2, completed: 3 };
+  const rank = { not_completed: 0, pending: 1, completed: 2 };
   return [...tasks].sort((a, b) => {
-    const ra = rank[getDerivedStatus(a)];
-    const rb = rank[getDerivedStatus(b)];
+    const ra = rank[getDerivedStatus(a)] ?? 1;
+    const rb = rank[getDerivedStatus(b)] ?? 1;
     if (ra !== rb) return ra - rb;
     return (a.deadlineDate + a.deadlineTime).localeCompare(b.deadlineDate + b.deadlineTime);
   });

@@ -1,8 +1,7 @@
 const SEGMENTS = [
   { key: 'completed', label: 'Completed', color: '#12805C' },
   { key: 'pending', label: 'Pending', color: '#F0AA4E' },
-  { key: 'overdue', label: 'Overdue', color: '#C0301D' },
-  { key: 'notCompleted', label: 'Not completed', color: '#C7CBD3' },
+  { key: 'notCompleted', label: 'Not done', color: '#C0301D' },
 ];
 
 export default function StackedBar({ stats }) {

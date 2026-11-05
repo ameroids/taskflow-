@@ -58,7 +58,7 @@ export default function MyProgress() {
           <div><p className="text-[19px] font-semibold text-text-primary leading-none">{overall.total}</p><p className="text-[11.5px] text-text-muted mt-1.5">Total tasks</p></div>
           <div><p className="text-[19px] font-semibold text-success-600 leading-none">{overall.completed}</p><p className="text-[11.5px] text-text-muted mt-1.5">Completed</p></div>
           <div><p className="text-[19px] font-semibold text-warning-600 leading-none">{overall.pending}</p><p className="text-[11.5px] text-text-muted mt-1.5">Pending</p></div>
-          <div><p className="text-[19px] font-semibold text-danger-600 leading-none">{overall.overdue}</p><p className="text-[11.5px] text-text-muted mt-1.5">Overdue</p></div>
+          <div><p className="text-[19px] font-semibold text-danger-600 leading-none">{overall.notCompleted}</p><p className="text-[11.5px] text-text-muted mt-1.5">Not done</p></div>
         </div>
       </div>
     </div>

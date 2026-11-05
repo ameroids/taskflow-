@@ -11,7 +11,7 @@ import TaskDetailModal from '../../components/tasks/TaskDetailModal';
 import TaskFormModal from '../../components/tasks/TaskFormModal';
 import ExtendDeadlineModal from '../../components/tasks/ExtendDeadlineModal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { computeStats, applyTaskFilters } from '../../utils/taskUtils';
+import { computeStats, computeAllRunsStats, applyTaskFilters, groupUniqueTasks } from '../../utils/taskUtils';
 import { ArrowLeft } from 'lucide-react';
 
 export default function UserDetail() {
@@ -48,8 +48,10 @@ export default function UserDetail() {
   };
 
   const userTasks = useMemo(() => tasks.filter((t) => t.assignedTo === id), [tasks, id]);
+  const uniqueUserTasks = useMemo(() => groupUniqueTasks(userTasks), [userTasks]);
   const stats = useMemo(() => computeStats(userTasks), [userTasks]);
-  const filtered = useMemo(() => applyTaskFilters(userTasks, filters), [userTasks, filters]);
+  const allRunsStats = useMemo(() => computeAllRunsStats(userTasks), [userTasks]);
+  const filtered = useMemo(() => applyTaskFilters(uniqueUserTasks, filters), [uniqueUserTasks, filters]);
 
   if (!user) {
     return (
@@ -110,13 +112,29 @@ export default function UserDetail() {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 border-t lg:border-t-0 lg:border-l border-border-soft pt-4 lg:pt-0 lg:pl-6">
           <div className="flex items-center gap-3">
-            <ProgressRing value={stats.completionRate} sublabel="completion" />
+            <ProgressRing
+              value={stats.completionRate}
+              label={`${stats.completed}/${stats.total}`}
+              sublabel="tasks done"
+            />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 w-full sm:w-auto">
-            <div><p className="text-[18px] font-semibold text-text-primary leading-none">{stats.total}</p><p className="text-[11.5px] text-text-muted mt-1">Total</p></div>
-            <div><p className="text-[18px] font-semibold text-success-600 leading-none">{stats.completed}</p><p className="text-[11.5px] text-text-muted mt-1">Completed</p></div>
-            <div><p className="text-[18px] font-semibold text-warning-600 leading-none">{stats.pending}</p><p className="text-[11.5px] text-text-muted mt-1">Pending</p></div>
-            <div><p className="text-[18px] font-semibold text-danger-600 leading-none">{stats.overdue}</p><p className="text-[11.5px] text-text-muted mt-1">Overdue</p></div>
+            <div>
+              <p className="text-[18px] font-semibold text-text-primary leading-none">{stats.total}</p>
+              <p className="text-[11.5px] text-text-muted mt-1">Total tasks</p>
+            </div>
+            <div>
+              <p className="text-[18px] font-semibold text-success-600 leading-none">{stats.completed}</p>
+              <p className="text-[11.5px] text-text-muted mt-1">Completed</p>
+            </div>
+            <div>
+              <p className="text-[18px] font-semibold text-warning-600 leading-none">{stats.pending}</p>
+              <p className="text-[11.5px] text-text-muted mt-1">Pending</p>
+            </div>
+            <div>
+              <p className="text-[18px] font-semibold text-danger-600 leading-none">{stats.notCompleted}</p>
+              <p className="text-[11.5px] text-text-muted mt-1">Not done</p>
+            </div>
           </div>
         </div>
       </div>

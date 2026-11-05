@@ -87,8 +87,8 @@ export default function TeamProgress() {
                 <p className="text-[10.5px] text-text-muted mt-1">Pending</p>
               </div>
               <div>
-                <p className="text-[15px] font-semibold text-danger-600 leading-none">{stats.overdue}</p>
-                <p className="text-[10.5px] text-text-muted mt-1">Overdue</p>
+                <p className="text-[15px] font-semibold text-danger-600 leading-none">{stats.notCompleted}</p>
+                <p className="text-[10.5px] text-text-muted mt-1">Not done</p>
               </div>
             </div>
             <ProgressBar value={stats.completionRate} className="mt-4" />
