@@ -26,7 +26,7 @@ export default function Sidebar({ items, open, onClose, brandSub }) {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 24px)' }}>
           {items.map((item) => (
             <NavLink
               key={item.to}

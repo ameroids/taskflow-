@@ -24,6 +24,9 @@ export default function Modal({ open, onClose, title, subtitle, children, footer
       />
       <div
         className={`relative bg-surface w-full ${width} rounded-t-2xl sm:rounded-xl shadow-pop animate-slideUp max-h-[92vh] sm:max-h-[90vh] flex flex-col`}
+        style={{
+          paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
+        }}
       >
         <div className="flex items-start justify-between px-4 sm:px-5 py-3.5 sm:py-4 border-b border-border shrink-0">
           <div className="min-w-0 pr-2">
